@@ -4,7 +4,7 @@ use Test::More;
 
 use MG;
 
-# デバッグログ
+# 繝�繝舌ャ繧ｰ繝ｭ繧ｰ
 
 open my $logfile, '>:encoding(euc-jp)', "g.log";
 

@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 
 use utf8;
-use encoding "utf-8", STDOUT=>"cp932", STDERR=>"cp932";
+use encoding "utf-8", STDOUT=>"euc-jp", STDERR=>"euc-jp";
 use Encode;
 
 use MG;
