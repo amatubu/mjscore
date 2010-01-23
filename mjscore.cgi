@@ -23,6 +23,9 @@ my %images = (
     'z5' => 'haku', 'z6' => 'hatu', 'z7' => 'tyun',
 );
 
+my $image_prefix = "images/";
+my $image_suffix = "u.gif";
+
 binmode( STDIN,  ":utf8" );
 binmode( STDOUT, ":utf8" );
 binmode( STDERR, ":utf8" );
@@ -43,33 +46,58 @@ MG::init( $log );
 
 print 
     $cgi->header,
-    $cgi->start_html( -title=>'Simple Test CGI', -lang=>'ja-JP' ),
-    $cgi->h1( 'Simple Test CGI' ),
+    $cgi->start_html(
+        -title => 'Simple Test CGI',
+        -lang  => 'ja-JP',
+        -meta  => { 'viewport' => 'width = 320' }, ),
+    $cgi->h3( 'Simple Test CGI' ),
     $cgi->start_form,
-    "手牌? ", $cgi->textfield( -name=>'te', -size=>50, -default=>'p1p1p2p3p4p4p4z5z5z5z6z6z6 p4' ), $cgi->p,
-    "あがり牌? ", $cgi->textfield( -name=>'agari', -size=>3 ), $cgi->p,
-    "泣き? ", $cgi->textfield( -name=>'naki', -size=>40 ), $cgi->p,
-    "自風? ", $cgi->popup_menu( -name=>'jikaze', -values=>[1,2,3,4], -labels=>\%labels ), $cgi->p,
-    "場風? ", $cgi->popup_menu( -name=>'bakaze', -values=>[1,2,3,4], -labels=>\%labels ), $cgi->p,
+    "手牌: ", $cgi->br, $cgi->textfield(
+        -name    => 'te',
+        -size    => 45,
+        -default =>'p1p1p2p3p4p4p4z5z5z5z6z6z6 p4' ), $cgi->br,
+    "自風: ", $cgi->radio_group(
+        -name   => 'jikaze',
+        -values => [ 1, 2, 3, 4 ],
+        -labels => \%labels ), $cgi->br,
+    "場風: ", $cgi->radio_group(
+        -name   => 'bakaze',
+        -values => [ 1, 2, 3, 4 ],
+        -labels => \%labels ), $cgi->br,
+    "ドラ: ", $cgi->textfield(
+        -name => 'dora',
+        -size => 10, ), $cgi->br,
+    $cgi->checkbox( 'reach' ), $cgi->checkbox( 'double-reach' ), $cgi->checkbox( 'ippatsu' ), $cgi->br,
+    $cgi->checkbox( 'tsumo' ), $cgi->checkbox( 'haitei' ), $cgi->br,
+    $cgi->checkbox( 'rinshan' ), $cgi->checkbox( 'chankan' ), $cgi->br,
+    $cgi->checkbox( -name => 'tenho', -label => 'tenho/chiiho', ), $cgi->br,
+
     $cgi->submit,
     $cgi->end_form,
     $cgi->hr,"\n";
 
 if ($cgi->param) {
-    my %test;
-
-    $test{'te'} = $cgi->param( 'te' );
-    $test{'agari'} = $cgi->param( 'agari' );
-    $test{'naki'} = $cgi->param( 'naki' );
-    $test{'jikaze'} = $cgi->param( 'jikaze' );
-    $test{'bakaze'} = $cgi->param( 'bakaze' );
+    my %test = (
+        'te'      => $cgi->param( 'te' ),
+        'jikaze'  => $cgi->param( 'jikaze' ),
+        'bakaze'  => $cgi->param( 'bakaze' ),
+        'dora'    => $cgi->param( 'dora' ),
+        'reach'   => ( $cgi->param( 'double-reach' ) eq 'on' ? 2 :
+                     ( $cgi->param( 'reach' ) eq 'on' ? 1 : 0 ) ),
+        'tsumo'   => ( $cgi->param( 'tsumo' ) eq 'on' ),
+        'ippatsu' => ( $cgi->param( 'ippatsu' ) eq 'on' ),
+        'haitei'  => ( $cgi->param( 'haitei' ) eq 'on' ),
+        'rinshan' => ( $cgi->param( 'rinshan' ) eq 'on' ),
+        'chankan' => ( $cgi->param( 'chankan' ) eq 'on' ),
+        'tenho'   => ( $cgi->param( 'tenho' ) eq 'on' ), );
 
     my $result = MG::check( \%test );
 
     if ( $result ) {
-        print "Yaku is ", join( ' ', @{$result->{yaku}} ), $cgi->p;
+        print "Yaku is ", join( ' ', @{$result->{yaku}} ), $cgi->br;
         print MG::st_fu( $result->{fu} ), " fu ", $result->{han}, " han ", $cgi->p;
-        print "Your agari-kei is ", print_image( $cgi, $result->{'tehai'} ), $cgi->p;
+        print "Your agari-kei is ", $cgi->br,
+              print_image( $cgi, $result->{'tehai'} ), $cgi->p;
 
         # score
 
@@ -80,18 +108,19 @@ if ($cgi->param) {
             $test{tsumo},
         );
 
-        print "Score is ", ( $score->{ron} ? "$score->{ron} (ron)" : ( $score->{ko} ? "$score->{ko} (ko) $score->{oya} (oya)" : "$score->{all} all" ) ), $cgi->p;
+        print "Score is ",
+              ( $score->{ron} ? "$score->{ron} (ron)" :
+                                ( $score->{ko} ? "$score->{ko} (ko) $score->{oya} (oya)" :
+                                                 "$score->{all} all" ) ), $cgi->br;
     } else {
-        print "ERROR!", $cgi->p,
+        print "ERROR!", $cgi->br,
     }
     print $cgi->hr,"\n";
 
     print
-        "Your te is ", print_image( $cgi, $cgi->param('te') ),$cgi->p,
-        "Your agari is ", print_image( $cgi, $cgi->param('agari') ), $cgi->p,
-        "Your naki is ", print_image( $cgi, $cgi->param('naki') ), $cgi->p,
-        "Your kaze is ",$cgi->img( { src => "images/" . $labels{$cgi->param('jikaze')} . ".gif" }),$cgi->p,
-        "Ba's kaze is ",$cgi->img( { src => "images/" . $labels{$cgi->param('bakaze')} . ".gif" }),$cgi->p,
+        "Your te is ", $cgi->br, print_image( $cgi, $cgi->param('te') ),$cgi->br,
+        "Your kaze is ",$cgi->img( { src => $image_prefix . $labels{$cgi->param('jikaze')} . $image_suffix }),$cgi->br,
+        "Ba's kaze is ",$cgi->img( { src => $image_prefix . $labels{$cgi->param('bakaze')} . $image_suffix }),$cgi->br,
 }
 print $cgi->end_html;
 
@@ -110,21 +139,28 @@ sub print_image
 
     foreach my $m ( split( ' ', $te ) ) {
         if ( $m =~ /^([mps][1-9]|z[1-7])\1\1\1$/ ) {
-            $result .= $cgi->img( { src => "images/$images{$1}.gif" } ) .
-                       $cgi->img( { src => "images/ura.gif" } ) x 2 .
-                       $cgi->img( { src => "images/$images{$1}.gif" } );
+            $result .= $cgi->img( { src => get_image_path( $images{$1} ) } ) .
+                       $cgi->img( { src => get_image_path( "ura" ) } ) x 2 .
+                       $cgi->img( { src => get_image_path( $images{$1} ) } );
         } else {
             while ( $m =~ /([mps][1-9]-?|z[1-7]-?|[\s])/g ) {
                 my $hai = $1;
                 $hai =~ s/(..)(.)?/$1/;
                 my $yoko = ( defined( $2 ) ? 'y' : '' );
-                $result .= $cgi->img( { src => "images/$yoko$images{$hai}.gif" } );
+                $result .= $cgi->img( { src => get_image_path( $images{$hai} ) } );
             }
         }
         $result .= "&nbsp;"
     }
 
     return $result;
+}
+
+sub get_image_path
+{
+    my $name = shift;
+
+    return "$image_prefix$name$image_suffix";
 }
 
 1;

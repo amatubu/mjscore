@@ -414,6 +414,10 @@ sub check
                     'tsumo'  => $test->{tsumo},
                     'jikaze' => $test->{jikaze},
                     'bakaze' => $test->{bakaze},
+                    'haitei' => $test->{haitei},
+                    'rinshan' => $test->{rinshan},
+                    'chankan' => $test->{chankan},
+                    'tenho'  => $test->{tenho},
                 } );
 
                 $result{$pat}{fu} = $fu;
@@ -796,6 +800,10 @@ sub st_fu
 #     ->{tsumo}   ツモあがりかどうか
 #     ->{jikaze}  自風（1=東/2=南/3=西/4=北）
 #     ->{bakaze}  場風（1=東/2=南/3=西/4=北）
+#     ->{haitei}  ハイテイツモかどうか
+#     ->{rinshan} リンシャンツモかどうか
+#     ->{chankan} チャンカンかどうか
+#     ->{tenho}   天和／地和かどうか
 # <OUTPUT>
 #   \@yaku        成立した役のリスト
 #   $han          成立した役のはん数（合計）
@@ -815,7 +823,15 @@ sub check_yaku
     log_( 1, "SORTED: $param->{tehai}" );
 
     # 天和・地和
-    # TODO:
+
+    if ( $param->{menzen} && $param->{tsumo} && $param->{tenho} ) {
+        if ( $param->{jikaze} eq 1 ) {
+            push @yaku, "TENHO";
+        } else {
+            push @yaku, "CHIIHO";
+        }
+        $han += 100;
+    }
 
     # 字一色
 
@@ -952,13 +968,27 @@ sub check_yaku
     }
 
     # HAITEI
-    # TODO
+
+    if ( $param->{haitei} ) {
+        push @yaku, "HAITEI";
+        $han += 1;
+    }
 
     # RINSHAN-KAIHO
-    # TODO
+
+    if ( $param->{rinshan} && $param->{tsumo} ) {
+        if ( $param->{tehai} =~ /([mpsz]\d)\1{3}-?/ ) {
+            push @yaku, "RINSHAN-KAIHO";
+            $han += 1;
+        }
+    }
 
     # CHAN-KAN
-    # TODO
+
+    if ( $param->{chankan} ) {
+        push @yaku, "CHANKAN";
+        $han += 1;
+    }
 
     # TAN-YAO
 
