@@ -13,8 +13,8 @@ open $logfile, '>:encoding(euc-jp)', "g.log";
 
 # STDOUT を保存
 
-open my $old_stderr, ">&STDOUT";
-open STDOUT, ">temp.tmp";
+#open my $old_stderr, ">&STDOUT";
+#open STDOUT, ">temp.tmp";
 
 # 初期化せずにログ出力
 
@@ -22,17 +22,21 @@ MG::log_( 0, "test" );
 
 # 標準出力に出力されたログをチェックする
 
-close STDOUT;
-open TEMP, "+<temp.tmp";
-$line = <TEMP>;
-close TEMP;
-unlink 'temp.tmp';
+#close STDOUT;
+#open TEMP, "+<temp.tmp";
+#$line = <TEMP>;
+#close TEMP;
+#unlink 'temp.tmp';
 
-is( $line, "test\n", "log message" );
+#is( $line, "test\n", "log message" );
+
+# ログファイルにログが出力されていないことを確認する
+
+ok( -z "g.log" );
 
 # 初期化
 
-open STDOUT, ">temp.tmp";
+#open STDOUT, ">temp.tmp";
 MG::init( $logfile );
 
 # 初期化後にログ出力
@@ -42,6 +46,8 @@ MG::log_( 0, "test2" );
 # ログファイルに出力されたログをチェックする
 
 close $logfile;
+ok( !-z "g.log" );
+
 open $logfile, "+<g.log";
 $line = <$logfile>;
 close $logfile;
@@ -51,16 +57,16 @@ is( $line, "test2\n", "log message2" );
 
 # 標準出力に出力されたログをチェックする
 
-close STDOUT;
-sleep 1;
-open TEMP, "+<temp.tmp";
-$line = <TEMP>;
+#close STDOUT;
+#sleep 1;
+#open TEMP, "+<temp.tmp";
+#$line = <TEMP>;
 
-is( $line, "test2\n", "log message2" );
+#is( $line, "test2\n", "log message2" );
 
-close TEMP;
-unlink 'temp.tmp';
+#close TEMP;
+#unlink 'temp.tmp';
 
 # Restore STDERR
 
-open STDOUT, ">&", $old_stderr;
+#open STDOUT, ">&", $old_stderr;
