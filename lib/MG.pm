@@ -3,7 +3,8 @@ package MG;
 use strict;
 use warnings;
 use utf8;
-use encoding "utf-8", STDOUT=>"euc-jp", STDERR=>"euc-jp";
+#use encoding "utf-8", STDOUT=>"euc-jp", STDERR=>"euc-jp";
+use Encode;
 
 our $VERSION = '0.01';
 # --------------------------------------------------------------------------
@@ -845,9 +846,9 @@ sub check_yaku
 #         $param->{tehai} =~ /z2z2z2/ &&  # NAN
 #         $param->{tehai} =~ /z3z3z3/ &&  # SHAA
 #         $param->{tehai} =~ /z4z4z4/ ) { # PEI
-    if ( $param->{tehai} =~ /(z[1-4])\1(\1)?-? \s(\w+\s)?
-                             (z[1-4])\4{2,3}-? \s(\w+\s)?
-                             (z[1-4])\6{2,3}-? \s(\w+\s)?
+    if ( $param->{tehai} =~ /(z[1-4])\1(\1)?-? \s([\w-]+\s)?
+                             (z[1-4])\4{2,3}-? \s([\w-]+\s)?
+                             (z[1-4])\6{2,3}-? \s([\w-]+\s)?
                              (z[1-4])\8{2,3}-?/x ) {
         if ( defined( $2 ) ) {
             push @yaku, "DAI-SUU-SHII";
@@ -998,8 +999,8 @@ sub check_yaku
 
     # 3-SHOKU
 
-    if ( $param->{tehai} =~ /m(\d)m(\d)m(\d)-? \s(\w+\s)?
-                             p \1 p \2 p \3-? \s(\w+\s)?
+    if ( $param->{tehai} =~ /m(\d)m(\d)m(\d)-? \s([\w-]+\s)?
+                             p \1 p \2 p \3-? \s([\w-]+\s)?
                              s \1 s \2 s \3-?/x ) {
         if ( $2 == $1 + 1 && $3 == $2 + 1 ) {
             push @yaku, "3-SHOKU";
@@ -1009,8 +1010,8 @@ sub check_yaku
 
     # 1-TSUU
 
-    if ( $param->{tehai} =~ /([mps])[1]\1[2]\1[3]-? \s(\w+\s)?
-                                \1  [4]\1[5]\1[6]-? \s(\w+\s)?
+    if ( $param->{tehai} =~ /([mps])[1]\1[2]\1[3]-? \s([\w-]+\s)?
+                                \1  [4]\1[5]\1[6]-? \s([\w-]+\s)?
                                 \1  [7]\1[8]\1[9]-?/x ) {
         push @yaku, "1-TSUU";
         $han += ( $param->{menzen} ? 2 : 1 );
@@ -1053,8 +1054,8 @@ sub check_yaku
 
     # 3-ANKO
 
-    if ( $param->{tehai} =~ /([mpsz]\d)\1{2,3} \s(\w+\s)?
-                             ([mpsz]\d)\3{2,3} \s(\w+\s)?
+    if ( $param->{tehai} =~ /([mpsz]\d)\1{2,3} \s([\w-]+\s)?
+                             ([mpsz]\d)\3{2,3} \s([\w-]+\s)?
                              ([mpsz]\d)\5{2,3} (\s|$)/x ) {
         push @yaku, "3-ANKO";
         $han += 2;
@@ -1069,8 +1070,8 @@ sub check_yaku
 
     # 3-SHOKU-DOUKOU
 
-    if ( $param->{tehai} =~ /m(\d)m\1m\1(m\1)?-? \s(\w+\s)?
-                             p \1 p\1p\1(p\1)?-? \s(\w+\s)?
+    if ( $param->{tehai} =~ /m(\d)m\1m\1(m\1)?-? \s([\w-]+\s)?
+                             p \1 p\1p\1(p\1)?-? \s([\w-]+\s)?
                              s \1 s\1s\1(s\1)?-? (\s|$)/x ) {
         push @yaku, "3-SHOKU-DOUKOU";
         $han += 2;
@@ -1078,8 +1079,8 @@ sub check_yaku
 
     # 3-KANTSU
 
-    if ( $param->{tehai} =~ /([mpsz]\d)\1{3}-? \s(\w+\s)?
-                             ([mpsz]\d)\3{3}-? \s(\w+\s)?
+    if ( $param->{tehai} =~ /([mpsz]\d)\1{3}-? \s([\w-]+\s)?
+                             ([mpsz]\d)\3{3}-? \s([\w-]+\s)?
                              ([mpsz]\d)\5{3}-?/x ) {
         push @yaku, "3-KANTSU";
         $han += 2;
@@ -1087,8 +1088,8 @@ sub check_yaku
 
     # SHOU-SAN-GEN
 
-    if ( $param->{tehai} =~ /(z[5-7])\1 \s(\w+\s)+?
-                             (z[5-7])\3{2,3}-? \s(\w+\s)?
+    if ( $param->{tehai} =~ /(z[5-7])\1 \s([\w-]+\s)+?
+                             (z[5-7])\3{2,3}-? \s([\w-]+\s)?
                              (z[5-7])\5{2,3}-?/x ) {
         push @yaku, "SHOU-SAN-GEN";
         $han += 2;
@@ -1209,7 +1210,7 @@ sub log_
     my ( $level, $msg ) = @_;
 
     if ( $level <= $DEBUG ) {
-        print STDOUT "$msg\n";
+#        print STDOUT "$msg\n";
     }
     print $logfile "$msg\n" if ( defined( $logfile ) );
 }
