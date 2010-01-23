@@ -118,9 +118,9 @@ if ($cgi->param) {
     print $cgi->hr,"\n";
 
     print
-        "Your te is ", $cgi->br, print_image( $cgi, $cgi->param('te') ),$cgi->br,
-        "Your kaze is ",$cgi->img( { src => $image_prefix . $labels{$cgi->param('jikaze')} . $image_suffix }),$cgi->br,
-        "Ba's kaze is ",$cgi->img( { src => $image_prefix . $labels{$cgi->param('bakaze')} . $image_suffix }),$cgi->br,
+        "Your te is ", $cgi->br, print_image( $cgi, $cgi->param('te') ), $cgi->br,
+        "Your kaze is ", $cgi->img( { src => get_image_path( $labels{$cgi->param('jikaze')} ) } ), $cgi->br,
+        "Ba's kaze is ", $cgi->img( { src => get_image_path( $labels{$cgi->param('bakaze')} ) } ), $cgi->br,
 }
 print $cgi->end_html;
 
@@ -147,7 +147,7 @@ sub print_image
                 my $hai = $1;
                 $hai =~ s/(..)(.)?/$1/;
                 my $yoko = ( defined( $2 ) ? 'y' : '' );
-                $result .= $cgi->img( { src => get_image_path( $images{$hai} ) } );
+                $result .= $cgi->img( { src => get_image_path( "$yoko$images{$hai}" ) } );
             }
         }
         $result .= "&nbsp;"

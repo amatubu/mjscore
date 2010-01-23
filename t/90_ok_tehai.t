@@ -742,6 +742,118 @@ my @tests = (
             'ron' => 8000,
         },
     },
+    { # TENHO
+        'te' => 'p1p1p2p3p4p5p6z5z5z5z6z6z6 p1',
+        'jikaze' => 1,
+        'bakaze' => 2,
+        'tenho'  => 1,
+
+        'yaku' => [
+            "TENHO",
+        ],
+        'fu' => 20 + 8 + 8 + 2 + 2,
+        'han' => 100,
+
+        'score' => {
+            'all' => 16000,
+        },
+    },
+    { # CHIIHO
+        'te' => 'p1p1p2p3p4p5p6z5z5z5z6z6z6 p1',
+        'jikaze' => 3,
+        'bakaze' => 2,
+        'tenho'  => 1,
+
+        'yaku' => [
+            "CHIIHO",
+        ],
+        'fu' => 20 + 8 + 8 + 2 + 2,
+        'han' => 100,
+
+        'score' => {
+            'oya' => 16000,
+            'ko'  =>  8000,
+        },
+    },
+    { # HAITEI
+        'te' => 'm1m2m3m9m9p2p3p7p8p9s7s8s9 p1',
+        'jikaze' => 3,
+        'bakaze' => 1,
+        'reach'  => 1,
+        'ippatsu' => 1,
+        'haitei' => 1,
+        'dora' => 's7',
+
+        'yaku' => [
+            "REACH",
+            "IPPATSU",
+            "JUN-CHAN",
+            "HAITEI",
+            "TSUMO",
+            "PINFU",
+            "DORAx1"
+        ],
+        'fu' => 20, # PINFU
+        'han' => 9,
+
+        'score' => {
+            'oya' => 8000,
+            'ko'  => 4000,
+        },
+    },
+    { # RINSHAN
+        'te' => 'm1m2m3p2p4p5p6s8s8s8 p3p3p3p3 p2',
+        'jikaze' => 2,
+        'bakaze' => 1,
+        'rinshan' => 1,
+
+        'yaku' => [
+            "RINSHAN-KAIHO",
+            "TSUMO",
+        ],
+        'fu' => 20 + 4 + 16 + 2 + 2, # 44
+        'han' => 2,
+
+        'score' => {
+            'oya' => 1600,
+            'ko'  =>  800,
+        },
+    },
+    { # RINSHAN
+        'te' => 'm1m2m3p2p4p5p6s8s8s8p3p3p3 p2',
+        'jikaze' => 2,
+        'bakaze' => 1,
+        'rinshan' => 1, # bad
+
+        'yaku' => [
+            "TSUMO",
+        ],
+        'fu' => 20 + 4 + 4 + 2 + 2, # 32
+        'han' => 1,
+
+        'score' => {
+            'oya' => 700,
+            'ko'  => 400,
+        },
+    },
+    { # CHANKAN
+        'te' => 'z2z2p6p7p8s1s3s4s5s6 m7m7m7- s2', # あがり牌の「-」省略
+        'jikaze' => 2,
+        'bakaze' => 1,
+        'chankan' => 1,
+        'dora' => 'z2',
+
+        'yaku' => [
+            "CHANKAN",
+            "DORAx2",
+        ],
+        'fu' => 20 + 2 + 2 + 2, # 26
+        'han' => 3,
+
+        'score' => {
+            'ron' => 3900,
+        },
+    },
 );
 
 plan tests => @tests * 5;
@@ -783,7 +895,7 @@ foreach my $test ( @tests ) {
         my $yaku_list = join( ' ', sort @{$result->{yaku}} );
         my $expect_yaku_list = join( ' ', sort @{$test->{yaku}} );
 
-		is( $yaku_list, $expect_yaku_list, "YAKU $test->{te}" );
+        is( $yaku_list, $expect_yaku_list, "YAKU $test->{te}" );
 
         if ( $yaku_list eq $expect_yaku_list ) {
             $msg = "OK";

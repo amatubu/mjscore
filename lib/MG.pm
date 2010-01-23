@@ -96,7 +96,9 @@ sub check
         my @tehai = split( ' ', $test->{te} );
 
         $test->{agari} = pop @tehai;
-        if ( $test->{agari} =~ s/-// ) {
+        if ( ( $test->{agari} =~ s/-// ) || $test->{chankan} ) {
+            # チャンカンの場合は必ずロンあがり
+
             delete $test->{tsumo};
         } else {
             $test->{tsumo} = 1;
