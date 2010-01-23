@@ -43,13 +43,14 @@ my @ng_tests = (
 
 plan tests => @ok_tests + @ng_tests;
 
+my $mjc = MG->new;
 
 foreach my $nm ( @ok_tests ) {
-    ok(  MG::check_naki( $nm ), sprintf "NAKI(OK): %s", $nm || '<undef>' );
+    ok(  $mjc->check_naki( $nm ), sprintf "NAKI(OK): %s", $nm || '<undef>' );
 }
 
 foreach my $nm ( @ng_tests ) {
-    ok( !MG::check_naki( $nm ), sprintf "NAKI(NG): %s", $nm || '<undef>' );
+    ok( !$mjc->check_naki( $nm ), sprintf "NAKI(NG): %s", $nm || '<undef>' );
 }
 
 exit 0;

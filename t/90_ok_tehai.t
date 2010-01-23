@@ -859,10 +859,10 @@ my @tests = (
 plan tests => @tests * 5;
 
 
-MG::init( $logfile );
+my $mjc = MG->new( 'logfile' => $logfile );
 
 foreach my $test ( @tests ) {
-    my $result = MG::check( $test );
+    my $result = $mjc->check( $test );
 
     ok( defined( $result ), "RESULT $test->{te}" );
 
@@ -870,8 +870,8 @@ foreach my $test ( @tests ) {
         my $pass = 1;
         my $msg;
 
-        MG::log_( 2, "=== RESULT ===" );
-        MG::log_( 0, sprintf "AGARI-KEI  %s", $result->{tehai} );
+        $mjc->log_( 2, "=== RESULT ===" );
+        $mjc->log_( 0, sprintf "AGARI-KEI  %s", $result->{tehai} );
 
         is( $result->{fu}, $test->{fu}, "FU $test->{te}" );
         is( $result->{han}, $test->{han}, "HAN $test->{te}" );
@@ -890,7 +890,7 @@ foreach my $test ( @tests ) {
         } else {
             $msg .= sprintf "%d han", $result->{han};
         }
-        MG::log_( 0, $msg );
+        $mjc->log_( 0, $msg );
 
         my $yaku_list = join( ' ', sort @{$result->{yaku}} );
         my $expect_yaku_list = join( ' ', sort @{$test->{yaku}} );
@@ -904,9 +904,9 @@ foreach my $test ( @tests ) {
             $pass = 0;
         }
         $msg .= sprintf "  %s", $yaku_list;
-        MG::log_( 0, $msg );
+        $mjc->log_( 0, $msg );
 
-        my $score = MG::calc_score(
+        my $score = $mjc->calc_score(
             $result->{fu},
             $result->{han},
             ( $test->{jikaze} == 1 ), # oya
@@ -914,7 +914,7 @@ foreach my $test ( @tests ) {
 
         if ( $test->{score} ) {
             foreach my $p ( keys %{$test->{score}} ) {
-                MG::log_( 0, sprintf "  $p $test->{score}->{$p}" );
+                $mjc->log_( 0, sprintf "  $p $test->{score}->{$p}" );
             }
             is_deeply( $score, $test->{score},
                        sprintf "$result->{fu} fu $result->{han} han (%s) (%s)",
@@ -923,13 +923,13 @@ foreach my $test ( @tests ) {
         }
 
         if ( !$pass ) {
-            MG::log_( 0, "=== EXPECT ===" );
-            MG::log_( 0, sprintf "    %d fu => %d fu  %d han",
+            $mjc->log_( 0, "=== EXPECT ===" );
+            $mjc->log_( 0, sprintf "    %d fu => %d fu  %d han",
                 $test->{fu}, MG::st_fu( $test->{fu} ), $test->{han} );
-            MG::log_( 0, sprintf "    %s", $expect_yaku_list );
+            $mjc->log_( 0, sprintf "    %s", $expect_yaku_list );
         }
     }
-    MG::log_( 0, "" );
+    $mjc->log_( 0, "" );
 }
 
 close $logfile;

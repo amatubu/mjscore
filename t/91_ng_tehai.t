@@ -187,15 +187,14 @@ my @tests = (
 
 plan tests => @tests * 1;
 
-
-MG::init( $logfile );
+my $mjc = MG->new( 'logfile' => $logfile );
 
 foreach my $test ( @tests ) {
-    my $result = MG::check( $test );
+    my $result = $mjc->check( $test );
 
     ok( !defined( $result ) && $test->{error}, "FU $test->{te}" );
 
-    MG::log_( 0, "" );
+    $mjc->log_( 0, "" );
 }
 
 close $logfile;

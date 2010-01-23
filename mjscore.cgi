@@ -40,17 +40,13 @@ my %labels = (
 my $cgi = new CGI;
 $cgi->charset( 'utf-8' );
 
-open my $log, ">result.log";
-
-MG::init( $log );
-
 print 
     $cgi->header,
     $cgi->start_html(
         -title => 'Simple Test CGI',
         -lang  => 'ja-JP',
-        -meta  => { 'viewport' => 'width = 320' }, ),
-    $cgi->h3( 'Simple Test CGI' ),
+        -meta  => { 'viewport' => 'width = device-width' }, ),
+#    $cgi->h3( 'Simple Test CGI' ),
     $cgi->start_form,
     "手牌: ", $cgi->br, $cgi->textfield(
         -name    => 'te',
@@ -77,6 +73,10 @@ print
     $cgi->hr,"\n";
 
 if ($cgi->param) {
+    open my $log, ">result.log";
+
+    my $mjc = MG->new( 'logfile' => $log );
+
     my %test = (
         'te'      => $cgi->param( 'te' ),
         'jikaze'  => $cgi->param( 'jikaze' ),
@@ -91,7 +91,7 @@ if ($cgi->param) {
         'chankan' => ( $cgi->param( 'chankan' ) eq 'on' ),
         'tenho'   => ( $cgi->param( 'tenho' ) eq 'on' ), );
 
-    my $result = MG::check( \%test );
+    my $result = $mjc->check( \%test );
 
     if ( $result ) {
         print "Yaku is ", join( ' ', @{$result->{yaku}} ), $cgi->br;
@@ -101,7 +101,7 @@ if ($cgi->param) {
 
         # score
 
-        my $score = MG::calc_score(
+        my $score = $mjc->calc_score(
             $result->{fu},
             $result->{han},
             ( $cgi->param( 'jikaze' ) == 1 ),
@@ -121,11 +121,11 @@ if ($cgi->param) {
         "Your te is ", $cgi->br, print_image( $cgi, $cgi->param('te') ), $cgi->br,
         "Your kaze is ", $cgi->img( { src => get_image_path( $labels{$cgi->param('jikaze')} ) } ), $cgi->br,
         "Ba's kaze is ", $cgi->img( { src => get_image_path( $labels{$cgi->param('bakaze')} ) } ), $cgi->br,
+
+    close $log;
 }
 print $cgi->end_html;
 
-
-close $log;
 
 exit 0;
 

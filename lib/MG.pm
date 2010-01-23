@@ -24,28 +24,23 @@ my %ji_name = (
 );
 
 # --------------------------------------------------------------------------
-# グローバル変数
-# --------------------------------------------------------------------------
-
-# ログファイルのファイルハンドル
-
-my $logfile;
-
-# デバッグレベル
-
-my $DEBUG = 0;
-
-# --------------------------------------------------------------------------
 # 初期化ルーチン
 # --------------------------------------------------------------------------
 
-sub init
+sub new
 {
-    # TODO: ルーチン名は「new」の方がいいかも？
-    # TODO: デバッグレベルの指定
+    my $class = shift;
+    my %param = @_;
+    my $self = {};
+
     # TODO: 利用ルールの指定
 
-    $logfile = shift;
+    $self->{name} = 'Marjang::Calculator';
+    $self->{DEBUG} = $param{debug} || 0;
+    $self->{logfile} = $param{logfile};
+
+    bless $self, $class;
+    return $self;
 }
 
 # --------------------------------------------------------------------------
@@ -54,6 +49,7 @@ sub init
 
 sub check
 {
+    my $self = shift;
     my $test = shift;
     my $rest = $test->{te};
     my %pc;
@@ -119,7 +115,7 @@ sub check
         return if ( $test->{te} !~ /$test->{agari}/ );
     }
 
-    log_( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s)",
+    $self->log_( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s)",
         $test->{te},
         $test->{naki} || '-',
         ( $test->{tsumo} ? "ツモ" : "ロン" ),
@@ -142,7 +138,7 @@ sub check
         return if ( $pc{$p} > 4 );
     }
 
-    debug_print( \%pc );
+    $self->debug_print( \%pc );
 
     # 泣き処理
 
@@ -150,7 +146,7 @@ sub check
         foreach my $nm ( split( ' ', $test->{naki} ) ) {
             # 泣きが面子の形になっているかどうか
 
-            if ( !check_naki( $nm ) ) {
+            if ( !$self->check_naki( $nm ) ) {
                 $error = 1;
                 last;
             }
@@ -163,7 +159,7 @@ sub check
 
             push @m, $nm;
             $mc++;
-            log_( 1, "NAKI: $nm" );
+            $self->log_( 1, "NAKI: $nm" );
 
             while ( $nm =~ s/([mpsz]\d)// ) {
                 my $p = $1;
@@ -179,11 +175,11 @@ sub check
         }
 
         if ( $error ) {
-            log_( 0, "ERROR: naki" );
+            $self->log_( 0, "ERROR: naki" );
             return;
         }
 
-        debug_print( \%pc );
+        $self->debug_print( \%pc );
 
         # 暗カン以外の泣きが入っている場合は面前じゃない
 
@@ -265,13 +261,13 @@ sub check
             }
         }
 
-        log_( 1, "mentsu @m" ) if ( scalar @m >= 1 );
-        log_( 1, sprintf "head %s", $head ) if ( $head ne '' );
-        log_( 1, sprintf "error %d", $error ) if ( $error );
+        $self->log_( 1, "mentsu @m" ) if ( scalar @m >= 1 );
+        $self->log_( 1, sprintf "head %s", $head ) if ( $head ne '' );
+        $self->log_( 1, sprintf "error %d", $error ) if ( $error );
 
         return if ( $error ne 0 );
 
-        debug_print( \%pc );
+        $self->debug_print( \%pc );
 
         my @ok_pat;
 
@@ -286,7 +282,7 @@ sub check
                     my $kari_mc = $mc;
 
                     $kari_head = $p x 2;
-                    log_( 1, sprintf "kari head = %s", $kari_head );
+                    $self->log_( 1, sprintf "kari head = %s", $kari_head );
 
                     $kari{$p} -= 2;
                     if ( $kari{$p} == 0 ) {
@@ -297,18 +293,18 @@ sub check
 
                     my %params;
                     $params{kari} = \%kari;
-                    my $result = search_mentsu( \%params );
+                    my $result = $self->search_mentsu( \%params );
                     $kari_mc += $result->{mc};
                     push @kari_m, @{$result->{m}};
 
                     if ( $kari_mc ne 4 ) {
                         # NG
 
-                        log_( 1, "mentsu NG" );
+                        $self->log_( 1, "mentsu NG" );
                     } else {
                         # OK
 
-                        log_( 1, "mentsu OK" );
+                        $self->log_( 1, "mentsu OK" );
                         push @ok_pat, sprintf "%s %s", $kari_head, join( ' ', @kari_m );
                         $ok = 1;
                     }
@@ -324,18 +320,18 @@ sub check
 
             my %params;
             $params{kari} = \%kari;
-            my $result = search_mentsu( \%params );
+            my $result = $self->search_mentsu( \%params );
             $kari_mc += $result->{mc};
             push @kari_m, @{$result->{m}};
 
             if ( $kari_mc ne 4 ) {
                 # NG
 
-                log_( 1, "result NG" );
+                $self->log_( 1, "result NG" );
             } else {
                 # OK
 
-                log_( 1, "result OK" );
+                $self->log_( 1, "result OK" );
                 push @ok_pat, sprintf "%s %s", $kari_head, join( ' ', @kari_m );
                 $ok = 1;
             }
@@ -366,7 +362,7 @@ sub check
                     my $shuntsu_pat = $pat;
                     $shuntsu_pat =~ s/(^|\s)(([mps])(\d))\2{2} \s (\3([^\4]))\5{2} \s (\3([^\4\6]))\7{2}(\s|$)
                                      /$1$3$4$3$6$3$8 $3$4$3$6$3$8 $3$4$3$6$3$8$9/x;
-                    log_( 1, "     SHUNTSU $shuntsu_pat" );
+                    $self->log_( 1, "     SHUNTSU $shuntsu_pat" );
 
                     push @ok_pat, $shuntsu_pat;
                     last;
@@ -387,39 +383,40 @@ sub check
                 # ツモあがりの場合もやはり暗刻とすればよい
 
                 if ( !$test->{tsumo} && $pat =~ /^(.*)\s($test->{agari}){3}(\s|$)(.*)$/ ) {
-                    log_( 1, "PON: ($1) ($2) ($3) ($4)" );
+                    $self->log_( 1, "PON: ($1) ($2) ($3) ($4)" );
                     if ( $1 !~ /$test->{agari}/ && $4 !~ /$test->{agari}/ ) {
                         $pat =~ s/(?<=\s($test->{agari}){3})/-/;
                     }
                 }
 
-                log_( 1, "TEHAI pattern : $pat" );
+                $self->log_( 1, "TEHAI pattern : $pat" );
 
                 # 符を計算する
 
-                my ( $fu, $pinfu ) =
-                    calc_fu( { 'pat'    => $pat, 
-                               'agari'  => $test->{agari},
-                               'menzen' => $test->{menzen},
-                               'tsumo'  => $test->{tsumo},
-                               'jikaze' => $test->{jikaze},
-                               'bakaze' => $test->{bakaze} } );
-
-                # 役とはん数を調べる
-
-                my ( $yaku_, $han_ ) = check_yaku( {
-                    'tehai'  => $pat,
-                    'reach'  => $test->{reach},
-                    'ippatsu' => $test->{ippatsu},
+                my ( $fu, $pinfu ) = $self->calc_fu( {
+                    'pat'    => $pat, 
                     'agari'  => $test->{agari},
                     'menzen' => $test->{menzen},
                     'tsumo'  => $test->{tsumo},
                     'jikaze' => $test->{jikaze},
-                    'bakaze' => $test->{bakaze},
-                    'haitei' => $test->{haitei},
+                    'bakaze' => $test->{bakaze}
+                } );
+
+                # 役とはん数を調べる
+
+                my ( $yaku_, $han_ ) = $self->check_yaku( {
+                    'tehai'   => $pat,
+                    'reach'   => $test->{reach},
+                    'ippatsu' => $test->{ippatsu},
+                    'agari'   => $test->{agari},
+                    'menzen'  => $test->{menzen},
+                    'tsumo'   => $test->{tsumo},
+                    'jikaze'  => $test->{jikaze},
+                    'bakaze'  => $test->{bakaze},
+                    'haitei'  => $test->{haitei},
                     'rinshan' => $test->{rinshan},
                     'chankan' => $test->{chankan},
-                    'tenho'  => $test->{tenho},
+                    'tenho'   => $test->{tenho},
                 } );
 
                 $result{$pat}{fu} = $fu;
@@ -431,7 +428,7 @@ sub check
                     push @{$yaku_}, "PINFU";
                 }
 
-                log_( 1, "  $fu fu $han_ han (@{$yaku_})" );
+                $self->log_( 1, "  $fu fu $han_ han (@{$yaku_})" );
 
                 if ( $han_ > $max_han ) {
                     $max = $pat;
@@ -458,7 +455,7 @@ sub check
 
         # 七対子以外の役を探す
 
-        my ( $yaku_, $han_ ) = check_yaku( {
+        my ( $yaku_, $han_ ) = $self->check_yaku( {
             'tehai'  => $max,
             'reach'  => $test->{reach},
             'ippatsu' => $test->{ippatsu},
@@ -467,6 +464,10 @@ sub check
             'tsumo'  => $test->{tsumo},
             'jikaze' => $test->{jikaze},
             'bakaze' => $test->{bakaze},
+            'haitei'  => $test->{haitei},
+            'rinshan' => $test->{rinshan},
+            'chankan' => $test->{chankan},
+            'tenho'   => $test->{tenho},
         } );
 
         @yaku = @{$yaku_};
@@ -514,7 +515,7 @@ sub check
             return undef;
         }
     } else {
-        log_( 0, "NO OK PATTERNS !!!" );
+        $self->log_( 0, "NO OK PATTERNS !!!" );
         return undef;
     }
 }
@@ -533,6 +534,7 @@ sub check
 
 sub search_mentsu
 {
+    my $self = shift;
     my $params = shift;
 
     my $kari = $params->{kari};
@@ -550,7 +552,7 @@ sub search_mentsu
         if ( $kari->{$p2} >= 3 ) {
             # 刻子を見つけた
 
-            log_( 1, sprintf "  found kotsu %s", $p2 x 3 );
+            $self->log_( 1, sprintf "  found kotsu %s", $p2 x 3 );
             push @kari_m, $p2 x 3;
             $kari->{$p2} -= 3;
             if ( $kari->{$p2} == 0 ) {
@@ -569,14 +571,14 @@ sub search_mentsu
             my ( $p2_2, $p2_3 ) = ( $p2, $p2 );
             $p2_2 =~ s/(\d)$/$1+1/e;
             $p2_3 =~ s/(\d)$/$1+2/e;
-#            log_( 1, sprintf "  search for %s%s%s ...", $p2, $p2_2, $p2_3 );
-#            debug_print( \%{$kari} );
+#            $self->log_( 1, sprintf "  search for %s%s%s ...", $p2, $p2_2, $p2_3 );
+#            $self->debug_print( \%{$kari} );
 
             if ( defined( $kari->{$p2_2} ) && defined( $kari->{$p2_3} ) &&
                  $kari->{$p2_2} > 0 && $kari->{$p2_3} > 0 ) {
                 # 順子を見つけた
 
-                log_( 1, sprintf "  found shuntsu %s", $p2 . $p2_2 . $p2_3 );
+                $self->log_( 1, sprintf "  found shuntsu %s", $p2 . $p2_2 . $p2_3 );
                 push @kari_m, $p2 . $p2_2 . $p2_3;
                 $kari->{$p2}--;
                 $kari->{$p2_2}--;
@@ -606,6 +608,7 @@ sub search_mentsu
 
 sub check_naki
 {
+    my $self = shift;
     my $nm = shift;
 
     return if ( !defined( $nm ) );
@@ -623,7 +626,7 @@ sub check_naki
         return 1 if ( $3 == $2 + 1 && $4 == $3 + 1 );
     }
 
-    log_( 0, "NG-NAKI: $nm" );
+    $self->log_( 0, "NG-NAKI: $nm" );
     return 0;
 }
 
@@ -643,6 +646,7 @@ sub check_naki
 
 sub calc_fu
 {
+    my $self = shift;
     my $param = shift;
     my $fuutei = 20; # 副底
     my $pinfu = 0;
@@ -659,7 +663,7 @@ sub calc_fu
         if ( $m =~ /^(z$to)\1$/ ) {
             # 役牌の頭
 
-            log_( 1, sprintf "HEAD %s 2 fu", $m );
+            $self->log_( 1, sprintf "HEAD %s 2 fu", $m );
 
             $fu_te += 2;
             next;
@@ -680,7 +684,7 @@ sub calc_fu
                 $fu_mentsu = 2 * $kan * $an;
             }
 
-            log_( 1, sprintf "MENTSU %s ( KAN : %s %d ) ( ANKO : %s %d ) %d fu",
+            $self->log_( 1, sprintf "MENTSU %s ( KAN : %s %d ) ( ANKO : %s %d ) %d fu",
                 $m, $2 || '', $kan, $3 || '', $an, $fu_mentsu );
 
             $fu_te += $fu_mentsu;
@@ -731,7 +735,7 @@ sub calc_fu
             $e_machi .= "|" . sprintf "%s%d%s%d%s%d", $kind, $num - 2, $kind, $num - 1, $kind, $num; # ryan-men
         }
     }
-    log_( 1, "MACHI : $d_machi (DIFFICULT : fu=2) / $e_machi (EASY : fu=0)" );
+    $self->log_( 1, "MACHI : $d_machi (DIFFICULT : fu=2) / $e_machi (EASY : fu=0)" );
 
     if ( $param->{pat} =~ /(\s|^)($d_machi)(\s|$)/ ) {
         $machi_max = 2;
@@ -744,7 +748,7 @@ sub calc_fu
         $machi_min_str =~ s/($param->{agari})/<$1>/;
     }
 
-    log_( 1, sprintf "MACHI-FU : %d (%s) - %d (%s)", $machi_min, $machi_min_str, $machi_max, $machi_max_str );
+    $self->log_( 1, sprintf "MACHI-FU : %d (%s) - %d (%s)", $machi_min, $machi_min_str, $machi_max, $machi_max_str );
 
     # pinfu hantei
 
@@ -767,7 +771,7 @@ sub calc_fu
     my $fu_total = ( $fuutei + $fu_te + $fu_menzen + $fu_tsumo + $fu_machi);
     my $pinfu_name = ( $pinfu ? "(PINFU)" : "" );
 
-    log_( 1, sprintf "  符: 副底(%d) + 手牌(%d) + 面前ロン(%d) + ツモ(%d) + 待ち(%d) = %d %s",
+    $self->log_( 1, sprintf "  符: 副底(%d) + 手牌(%d) + 面前ロン(%d) + ツモ(%d) + 待ち(%d) = %d %s",
            $fuutei, $fu_te, $fu_menzen, $fu_tsumo, $fu_machi, $fu_total, $pinfu_name );
 
     return ( $fu_total, $pinfu ) ;
@@ -813,6 +817,7 @@ sub st_fu
 
 sub check_yaku
 {
+    my $self = shift;
     my $param = shift;
     my @yaku;
     my $han = 0;
@@ -822,7 +827,7 @@ sub check_yaku
     my @mentsu = split( ' ', $param->{tehai} );
     my $head = shift @mentsu;
     $param->{tehai} = $head . ' ' . join( ' ', sort @mentsu );
-    log_( 1, "SORTED: $param->{tehai}" );
+    $self->log_( 1, "SORTED: $param->{tehai}" );
 
     # 天和・地和
 
@@ -1154,6 +1159,7 @@ sub check_yaku
 # --------------------------------------------------------------------------
 sub calc_score
 {
+    my $self = shift;
     my ( $fu, $han, $oya, $tsumo ) = @_;
 
     my $base = st_fu( $fu ) * ( 2 ** ( 2 + $han ) );
@@ -1216,6 +1222,7 @@ sub st_score
 
 sub debug_print
 {
+    my $self = shift;
     my $kari = shift;
 
     my $msg = '';
@@ -1223,7 +1230,7 @@ sub debug_print
     foreach my $p ( sort keys %{$kari} ) {
         $msg .= "$p ($kari->{$p}) ";
     }
-    log_( 2, $msg );
+    $self->log_( 2, $msg );
 }
 
 # --------------------------------------------------------------------------
@@ -1239,11 +1246,13 @@ sub debug_print
 
 sub log_
 {
+    my $self = shift;
     my ( $level, $msg ) = @_;
 
-    if ( $level <= $DEBUG ) {
+    if ( $level <= $self->{DEBUG} ) {
 #        print STDOUT "$msg\n";
     }
+    my $logfile = $self->{logfile};
     print $logfile "$msg\n" if ( defined( $logfile ) );
 }
 
