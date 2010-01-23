@@ -1,13 +1,11 @@
-#!/usr/bin/perl
-
 package MG;
 
 use strict;
 use warnings;
 use utf8;
 use encoding "utf-8", STDOUT=>"euc-jp", STDERR=>"euc-jp";
-use Encode;
 
+our $VERSION = '0.01';
 # --------------------------------------------------------------------------
 # 定数
 # --------------------------------------------------------------------------
@@ -1217,3 +1215,7 @@ sub log_
 }
 
 1;
+
+__END__
+
+=head1 NAMEMG - Marjang calculator written in Perl=head1 VERSIONVersion 0.01=cut
