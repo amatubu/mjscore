@@ -1,0 +1,17 @@
+---
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+  Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: MG
+no_index:
+  directory:
+    - t
+resources:
+  license: http://dev.perl.org/licenses/
