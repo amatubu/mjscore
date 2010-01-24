@@ -110,8 +110,8 @@ if ($cgi->param) {
 
         print "Score is ",
               ( $score->{ron} ? "$score->{ron} (ron)" :
-                                ( $score->{ko} ? "$score->{ko} (ko) $score->{oya} (oya)" :
-                                                 "$score->{all} all" ) ), $cgi->br;
+              ( $score->{ko}  ? "$score->{ko} (ko) $score->{oya} (oya)" :
+                                "$score->{all} all" ) ), $cgi->br;
     } else {
         print "ERROR!", $cgi->br,
     }
@@ -120,7 +120,7 @@ if ($cgi->param) {
     print
         "Your te is ", $cgi->br, print_image( $cgi, $cgi->param('te') ), $cgi->br,
         "Your kaze is ", $cgi->img( { src => get_image_path( $labels{$cgi->param('jikaze')} ) } ), $cgi->br,
-        "Ba's kaze is ", $cgi->img( { src => get_image_path( $labels{$cgi->param('bakaze')} ) } ), $cgi->br,
+        "Ba's kaze is ", $cgi->img( { src => get_image_path( $labels{$cgi->param('bakaze')} ) } ), $cgi->br;
 
     close $log;
 }
@@ -138,7 +138,7 @@ sub print_image
     my $result = '';
 
     foreach my $m ( split( ' ', $te ) ) {
-        if ( $m =~ /^([mps][1-9]|z[1-7])\1\1\1$/ ) {
+        if ( $m =~ /^([mps][1-9]|z[1-7])\1\1\1$/ ) { # 暗槓
             $result .= $cgi->img( { src => get_image_path( $images{$1} ) } ) .
                        $cgi->img( { src => get_image_path( "ura" ) } ) x 2 .
                        $cgi->img( { src => get_image_path( $images{$1} ) } );

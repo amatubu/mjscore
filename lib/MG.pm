@@ -39,6 +39,8 @@ sub new
     $self->{DEBUG} = $param{debug} || 0;
     $self->{logfile} = $param{logfile};
 
+    $self->{rule} = $param{rule};
+
     bless $self, $class;
     return $self;
 }
@@ -115,13 +117,14 @@ sub check
         return if ( $test->{te} !~ /$test->{agari}/ );
     }
 
-    $self->log_( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s)",
+    $self->log_( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s) ドラ(%s)",
         $test->{te},
         $test->{naki} || '-',
         ( $test->{tsumo} ? "ツモ" : "ロン" ),
         $test->{agari},
         $ji_name{$test->{jikaze}},
-        $ji_name{$test->{bakaze}} );
+        $ji_name{$test->{bakaze}},
+        $test->{dora} || '' );
 
     # 正しい文字だけで構成されているかどうかをチェック
 
@@ -666,6 +669,11 @@ sub calc_fu
             $self->log_( 1, sprintf "HEAD %s 2 fu", $m );
 
             $fu_te += 2;
+            if ( $self->{rule}->{renpu_toitsu4} ) {
+                if ( $param->{jikaze} eq $param->{bakaze} && $m =~ /^(z$param->{jikaze})\1$/ ) {
+                    $fu_te += 2;
+                }
+            }
             next;
         }
 
@@ -764,7 +772,7 @@ sub calc_fu
 
     # kui-pinfu kei
 
-    if ( !$param->{menzen} && ( $fu_te == 0 ) && ( $machi_min == 0 ) && ( $fu_tsumo == 0 ) ) {
+    if ( !$param->{menzen} && ( $fu_te == 0 ) && ( $machi_max == 0 ) && ( $fu_tsumo == 0 ) ) {
         $fu_te = 10;
     }
 
@@ -1000,8 +1008,10 @@ sub check_yaku
     # TAN-YAO
 
     if ( $param->{tehai} !~ /[mps][19]|z/ ) {
-        push @yaku, "TAN-YAO";
-        $han += 1;
+        if ( $param->{menzen} || $self->{rule}->{kuitan} ) {
+            push @yaku, "TAN-YAO";
+            $han += 1;
+        }
     }
 
     # FAN-PAI
