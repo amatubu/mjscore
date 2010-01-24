@@ -3,10 +3,9 @@ package MG;
 use strict;
 use warnings;
 use utf8;
-#use encoding "utf-8", STDOUT=>"euc-jp", STDERR=>"euc-jp";
-use Encode;
 
-our $VERSION = '0.01';
+our $VERSION = '0.01';
+
 # --------------------------------------------------------------------------
 # 定数
 # --------------------------------------------------------------------------
@@ -117,7 +116,7 @@ sub check
         return if ( $test->{te} !~ /$test->{agari}/ );
     }
 
-    $self->log_( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s) ドラ(%s)",
+    $self->( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s) ドラ(%s)",
         $test->{te},
         $test->{naki} || '-',
         ( $test->{tsumo} ? "ツモ" : "ロン" ),
@@ -1270,4 +1269,13 @@ sub log_
 
 __END__
 
-=head1 NAMEMG - Marjang calculator written in Perl=head1 VERSIONVersion 0.01=cut
+=head1 NAME
+
+MG - Marjang calculator written in Perl
+
+=head1 VERSION
+
+Version 0.01
+
+=cut
+

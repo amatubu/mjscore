@@ -7,6 +7,12 @@ WriteMakefile(
     NAME                => 'MG',
     AUTHOR              => 'Naoki IIMURA <amatubu@gmail.com>',
     VERSION_FROM        => 'lib/MG.pm',
+    LICENSE             => 'perl',
+    META_MERGE          => {
+        resources       => {
+            repository  => 'http://github.com/amatubu/mjscore',
+        },
+    },
     ABSTRACT            => 'Marjang calculator written in Perl',
     PL_FILES            => {},
     PREREQ_PM => {
