@@ -116,7 +116,7 @@ sub check
         return if ( $test->{te} !~ /$test->{agari}/ );
     }
 
-    $self->( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s) ドラ(%s)",
+    $self->log_( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s) ドラ(%s)",
         $test->{te},
         $test->{naki} || '-',
         ( $test->{tsumo} ? "ツモ" : "ロン" ),
