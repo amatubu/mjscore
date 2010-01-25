@@ -23,8 +23,9 @@ open my $logfile, '>:encoding(euc-jp)', "g.log";
 
 # 牌譜
 
-open my $haifu, '<:encoding(cp932)', "haifu_mini.txt";
-#open my $haifu, '<:encoding(cp932)', "haifu.txt";
+#open my $haifu, '<:encoding(cp932)', "haifu_mini.txt";
+open my $haifu, '<:encoding(cp932)', "haifu.txt";
+#open my $haifu, '<:encoding(cp932)', "totuhaihu.txt";
 #binmode( STDOUT, ":encoding(euc-jp)" );
 #binmode( STDERR, ":encoding(euc-jp)" );
 
@@ -376,6 +377,7 @@ sub agari_test {
             $result->{han} =  6 if ( $result->{han} == 7 );
             $result->{han} =  8 if ( $result->{han} >= 9 && $result->{han} <= 10 );
             $result->{han} = 11 if ( $result->{han} == 12 );
+            $result->{han} = 13 if ( $result->{han} >= 14 && $result->{han} <= 99 );
 
             $result->{fu} = 0;
         }
@@ -495,8 +497,14 @@ sub han_to_num
         'ハネ満貫' => 6, # 6-7
         '倍満貫' => 8, # 8-10
         '３倍満貫' => 11, # 11-12
+        '数え役満' => 13, # 13-
         '役満' => 100,
         'ダブル役満' => 200,
+
+        '一翻' => 1,
+        '二翻' => 2,
+        '三翻' => 3,
+        '四翻' => 4,
     );
 
     return $han_list{$han};
@@ -528,9 +536,11 @@ sub convert_yaku
     $yaku =~ s/三暗刻/3-ANKO/;
     $yaku =~ s/純全帯/JUN-CHAN/;
     $yaku =~ s/嶺上開花/RINSHAN-KAIHO/;
+    $yaku =~ s/四暗刻単騎待/4-ANKO(TANKI)/;
     $yaku =~ s/四暗刻/4-ANKO/;
     $yaku =~ s/全帯/CHANTA/;
     $yaku =~ s/二盃口/RYAN-PEI-KO/;
+    $yaku =~ s/国士無双１３面待/KOKUSHI-MUSOU(13men-chan)/;
     $yaku =~ s/国士無双/KOKUSHI-MUSOU/;
     $yaku =~ s/三色同刻/3-SHOKU-DOUKOU/;
     $yaku =~ s/混老頭/HON-ROU-TOU/;
@@ -538,6 +548,8 @@ sub convert_yaku
     $yaku =~ s/字一色/TSUU-II-SOU/;
     $yaku =~ s/小三元/SHOU-SAN-GEN/;
     $yaku =~ s/小四喜和/SHOU-SUU-SHII/;
+    $yaku =~ s/緑一色/RYUU-II-SOU/;
+    $yaku =~ s/清老頭/CHIN-ROU-TOU/;
 
     return $yaku;
 }
