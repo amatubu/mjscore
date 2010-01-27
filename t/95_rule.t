@@ -142,9 +142,9 @@ my @tests = (
 
         'rule'   => {
             'no_double_yakuman' => 0,
+            'no_triple_yakuman' => 0,
         },
     },
-
     { #DOUBLE-YAKUMAN nasi
         'te'     => "z1z1z2z2z2z5z5 z6z6z6- z7z7z7- z5",
         'jikaze' => 4,
@@ -165,6 +165,101 @@ my @tests = (
 
         'rule'   => {
             'no_double_yakuman' => 1,
+            'no_triple_yakuman' => 1,
+        },
+    },
+
+    { #TRIPLE-YAKUMAN ari
+        'te'     => "z1z1z2z2z2z5z5z6z6z6z7z7z7 z5",
+        'jikaze' => 4,
+        'bakaze' => 2,
+        'dora'   => 'p2',
+
+        'yaku'   => [
+            "TSUU-II-SOU",
+            "DAI-SAN-GEN",
+            "4-ANKO",
+        ],
+        'fu'     => 20 + 8 + 8 + 8 + 8 + 2, # 54
+        'han'    => 300,
+
+        'score'  => {
+            'oya' => 48000,
+            'ko'  => 24000,
+        },
+
+        'rule'   => {
+            'no_double_yakuman' => 0,
+            'no_triple_yakuman' => 0,
+        },
+    },
+    { #TRIPLE-YAKUMAN nasi
+        'te'     => "z1z1z2z2z2z5z5z6z6z6z7z7z7 z5",
+        'jikaze' => 4,
+        'bakaze' => 2,
+        'dora'   => 'p2',
+
+        'yaku'   => [
+            "TSUU-II-SOU",
+            "DAI-SAN-GEN",
+            "4-ANKO",
+        ],
+        'fu'     => 20 + 8 + 8 + 8 + 8 + 2, # 54
+        'han'    => 200, # double-yakuman
+
+        'score'  => {
+            'oya' => 32000,
+            'ko'  => 16000,
+        },
+
+        'rule'   => {
+            'no_double_yakuman' => 0,
+            'no_triple_yakuman' => 1,
+        },
+    },
+
+    { #4ANKO TANKI (double)
+        'te'     => "m2m2m2m5m5m5p8p8p8s7 p3p3p3p3 s7-",
+        'jikaze' => 1,
+        'bakaze' => 2,
+        'dora'   => 's5',
+
+        'yaku'   => [
+            "4-ANKO(TANKI)",
+        ],
+        'fu'     => 20 + 4 + 4 + 4 + 16 + 10 + 2, # 60
+        'han'    => 200, # double-yakuman
+
+        'score'  => {
+            'ron' => 96000,
+        },
+
+        'rule'   => {
+            'no_4anko_tanki_double' => 0,
+            'no_double_yakuman'     => 0,
+            'no_triple_yakuman'     => 1,
+        },
+    },
+    { #4ANKO TANKI (single)
+        'te'     => "m2m2m2m5m5m5p8p8p8s7 p3p3p3p3 s7-",
+        'jikaze' => 1,
+        'bakaze' => 2,
+        'dora'   => 's5',
+
+        'yaku'   => [
+            "4-ANKO(TANKI)",
+        ],
+        'fu'     => 20 + 4 + 4 + 4 + 16 + 10 + 2, # 60
+        'han'    => 100, # double-yakuman
+
+        'score'  => {
+            'ron' => 48000,
+        },
+
+        'rule'   => {
+            'no_4anko_tanki_double' => 1,
+            'no_double_yakuman'     => 0,
+            'no_triple_yakuman'     => 1,
         },
     },
 

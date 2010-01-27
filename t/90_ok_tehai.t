@@ -861,8 +861,15 @@ plan tests => @tests * 5;
 
 my $mjc = MG->new( 'logfile' => $logfile,
                    'rule'    => {
-                        'renpu_toitsu4' => 0, # 連風対子は 2符
-                        'kuitan'        => 0, # 食いタンなし
+                        'renpu_toitsu4'          => 0, # 連風対子は 2符
+                        'kuitan'                 => 0, # 食いタンなし
+                        'no_double_yakuman'      => 0, # ダブル役満あり
+                        'no_triple_yakuman'      => 0, # トリプル役満あり
+                        'no_4anko_tanki_double'  => 0, # 四暗刻単騎待ちはダブル役満
+                        'no_daisuushii_double'   => 0, # 大四喜はダブル役満
+                        'no_kokushi13_double'    => 0, # 国士無双13面待ちはダブル役満
+                        'no_4kantsu_double'      => 1, # 四槓子はダブル役満ではない
+                        'no_chuurenpoto9_double' => 0, # 九連宝燈9面待ちはダブル役満
                    } );
 
 foreach my $test ( @tests ) {

@@ -42,6 +42,11 @@ sub new
     #   ->{kuitan}             食いタンありかどうか（デフォルトオフ）
     #   ->{no_double_yakuman}  ダブル役満なしかどうか（デフォルトあり）
     #   ->{no_triple_yakuman}  トリプル役満なしかどうか（デフォルトあり）
+    #   ->{no_4anko_tanki_double} 四暗刻単騎待ちをダブル役満とするかどうか (デフォルトはする)
+    #   ->{no_daisuushii_double}  大四喜をダブル役満とするかどうか (デフォルトはする)
+    #   ->{no_kokusi13_double} 国士無双13面待ちをダブル役満とするかどうか (デフォルトはする)
+    #   ->{no_4kantsu_double}  四槓子をダブル役満とするかどうか (デフォルトはする)
+    #   ->{no_chuurenpoto9_double} 九連宝燈をダブル役満とするかどうか (デフォルトはする)
 
     $self->{rule} = $param{rule};
 
@@ -896,7 +901,11 @@ sub check_yaku
                              (z[1-4])\8{2,3}-?/x ) {
         if ( defined( $2 ) ) {
             push @yaku, "DAI-SUU-SHII";
-            $han += 200; # 100?
+            if ( !$self->{rule}->{no_daisuushii_double} ) {
+                $han += 200;
+            } else {
+                $han += 100;
+            }
         } else {
             push @yaku, "SHOU-SUU-SHII";
             $han += 100;
@@ -912,7 +921,11 @@ sub check_yaku
                                ([mpsz]\d)\4{2,3}$/x ) ) {
         if ( $param->{tehai} =~ /^($param->{agari}){2}\s/ ) {
             push @yaku, "4-ANKO(TANKI)";
-            $han += 200;
+            if ( !$self->{rule}->{no_4anko_tanki_double} ) {
+                $han += 200;
+            } else {
+                $han += 100;
+            }
         } else {
             push @yaku, "4-ANKO";
             $han += 100;
@@ -926,7 +939,11 @@ sub check_yaku
                              ([mpsz]\d)\3{3}-? \s
                              ([mpsz]\d)\4{3}-?$/x ) {
         push @yaku, "4-KANTSU";
-        $han += 100;
+        if ( !$self->{rule}->{no_4kantsu_double} ) {
+            $han += 200;
+        } else {
+            $han += 100;
+        }
     }
 
     # 緑一色
@@ -953,7 +970,11 @@ sub check_yaku
 
             if ( $te =~ /$param->{agari}/ ) {
                 push @yaku, "CHUUREN-POTO(9men-chan)";
-                $han += 200;
+                if ( !$self->{rule}->{no_chuurenpoto9_double} ) {
+                    $han += 200;
+                } else {
+                    $han += 100;
+                }
             } else {
                 push @yaku, "CHUUREN-POTO";
                 $han += 100;
