@@ -32,11 +32,16 @@ sub new
     my %param = @_;
     my $self = {};
 
-    # TODO: 利用ルールの指定
-
     $self->{name} = 'Marjang::Calculator';
     $self->{DEBUG} = $param{debug} || 0;
     $self->{logfile} = $param{logfile};
+
+    # TODO: 利用ルールの充実
+    # Supported rules:
+    #   ->{renpu_toitsu4}      連風対子を 4符とするかどうか（デフォルトオフ）
+    #   ->{kuitan}             食いタンありかどうか（デフォルトオフ）
+    #   ->{no_double_yakuman}  ダブル役満なしかどうか（デフォルトあり）
+    #   ->{no_triple_yakuman}  トリプル役満なしかどうか（デフォルトあり）
 
     $self->{rule} = $param{rule};
 
@@ -501,6 +506,15 @@ sub check
                 $han += $dora;
                 push @yaku, "DORAx" . $dora;
             }
+        }
+
+        # ダブル役満やトリプル役満がありかどうか
+
+        if ( $self->{rule}->{no_double_yakuman} ) {
+            $han = 100 if ( $han >= 100 );
+        }
+        if ( $self->{rule}->{no_triple_yakuman} ) {
+            $han = 200 if ( $han >= 200 );
         }
 
         my %result;
@@ -1189,6 +1203,13 @@ sub calc_score
         } else {
             $base = 24000; # Triple-yaku-man
         }
+    }
+
+    if ( $self->{rule}->{no_double_yakuman} ) {
+        $base = 8000 if ( $base >= 8000 );
+    }
+    if ( $self->{rule}->{no_triple_yakuman} ) {
+        $base = 16000 if ( $base >= 16000 );
     }
 
     my %score;

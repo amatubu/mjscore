@@ -859,7 +859,11 @@ my @tests = (
 plan tests => @tests * 5;
 
 
-my $mjc = MG->new( 'logfile' => $logfile );
+my $mjc = MG->new( 'logfile' => $logfile,
+                   'rule'    => {
+                        'renpu_toitsu4' => 0, # 連風対子は 2符
+                        'kuitan'        => 0, # 食いタンなし
+                   } );
 
 foreach my $test ( @tests ) {
     my $result = $mjc->check( $test );
