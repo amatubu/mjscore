@@ -32,7 +32,7 @@ sub new
     my %param = @_;
     my $self = {};
 
-    $self->{name} = 'Marjang::Calculator';
+    $self->{name} = 'Mahjong::Calculator';
     $self->{errstr} = "";
 
     $self->{DEBUG} = $param{debug} || 0;
