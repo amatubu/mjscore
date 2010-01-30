@@ -20,6 +20,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Too many hais",
     },
     { # 牌の数が少ない
         'te'     => 'm1m2m3p1p1p7p8p8s7s8s9z4z4',
@@ -28,6 +29,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Too few hais",
     },
     { # 牌の数が少ない
         'te'     => 'm1m2m3p1p1p8p8p8p8s7s8s9z4z4',
@@ -37,6 +39,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Too few hais",
     },
 
     { # 不正な文字が含まれている
@@ -46,6 +49,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Invalid character exists in te",
     },
     { # 不正な文字が含まれている
         'te'     => 'm1m2m3p1p1p7p8p9s7s8s9s0s0p1',
@@ -54,6 +58,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Invalid character exists in te",
     },
     { # 不正な文字が含まれている
         'te'     => 'm1m2m3p1p1p7p8p9s7s8s9n1n1p1',
@@ -62,6 +67,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Invalid character exists in te",
     },
 
     { # 泣きの形がおかしい場合
@@ -72,6 +78,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "Invalid naki",
     },
     { # 泣きの形がおかしい場合
         'te'     => 'm1p2s3p1p1p7p8p9s7s8s9z4z4z4',
@@ -81,6 +88,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "Invalid naki",
     },
     { # 泣きの形がおかしい場合
         'te'     => 'p1p1p7p8p9s7s8z4z4z4 m2m2m3- s9',
@@ -88,6 +96,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "Invalid naki",
     },
     { # 泣きに手牌に存在しない牌がある
         'te'     => 'm1m2m3p1p1p7p8p9s7s8s9z4z4z4',
@@ -97,6 +106,17 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "Invalid naki",
+    },
+    { # 泣きに手牌に存在しない牌がある2
+        'te'     => 'm1m1p1p1p1p7p8p9s7s8s9z4z4z4',
+        'naki'   => 'm1m1m1',
+        'agari'  => 's9',
+        'jikaze' => 1,
+        'bakaze' => 2,
+
+        'error'  => 1,
+        'errstr' => "Invalid naki",
     },
 
     { # 同じ牌が5枚以上ある
@@ -106,6 +126,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Too many m1",
     },
     { # 同じ牌が5枚以上ある
         'te'     => 'm1m1m1m1m1m2m3m1m2m3m6m6m6m9m9',
@@ -115,6 +136,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Too many m1",
     },
     { # 同じ牌が5枚以上ある（泣きを含めて）
         'te'     => 'm1m2m3m1m2m3m6m6m9m9 m1m1m1- m6',
@@ -122,6 +144,7 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "Too many m1",
     },
 
     { # あがり牌が未定義
@@ -130,6 +153,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "agari is not defined",
     },
     { # あがり牌が手牌にない
         'te'     => 'm1m2m3p1p1p7p8p9s7s8s9z4z4z4',
@@ -138,6 +162,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "agari hai does not exist in te",
     },
     { # あがり牌が泣きの中にしかない
         'te'     => 'm1m2m3p1p1p7p8p9s7s8s9z4z4z4',
@@ -147,13 +172,15 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "agari hai does not exist in te",
     },
     { # あがり牌が泣きの中にしかない
-        'te'     => 'm1m2m3p1p1p7p8p9s7s8s9 z4z4z4 z4',
+        'te'     => 'm1m2m3p1p1p7p8p9s7s8 s4s4s4 s4',
         'jikaze' => 3,
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "Go-ron",
     },
 
     { # あがりの形になってない場合(チョンボ1)
@@ -164,6 +191,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "Go-ron (invalid jihai)",
     },
     { # あがりの形になってない場合(チョンボ2)
         'te'     => 'm1m2m3m1m2p7p8p9s7s8s9z4z4z4',
@@ -173,6 +201,17 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
+        'errstr' => "Go-ron",
+    },
+    { # あがりの形になってない場合(チョンボ3)
+        'te'     => 'm1m2m3m1m2m4p7p8p9s7s8s9z4z4',
+        'menzen' => 1,
+        'agari'  => 'm1',
+        'jikaze' => 1,
+        'bakaze' => 2,
+
+        'error'  => 1,
+        'errstr' => "Go-ron",
     },
 
     { # 役がない場合(チョンボ)
@@ -182,10 +221,11 @@ my @tests = (
         'bakaze' => 1,
 
         'error'  => 1,
+        'errstr' => "No yaku",
     },
 );
 
-plan tests => @tests * 1;
+plan tests => @tests * 2;
 
 my $mjc = MG->new( 'logfile' => $logfile );
 
@@ -193,6 +233,7 @@ foreach my $test ( @tests ) {
     my $result = $mjc->check( $test );
 
     ok( !defined( $result ) && $test->{error}, "FU $test->{te}" );
+    is( $mjc->errstr, $test->{errstr}, "Error string $test->{te}" );
 
     $mjc->log_( 0, "" );
 }

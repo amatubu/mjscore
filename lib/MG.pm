@@ -33,6 +33,8 @@ sub new
     my $self = {};
 
     $self->{name} = 'Marjang::Calculator';
+    $self->{errstr} = "";
+
     $self->{DEBUG} = $param{debug} || 0;
     $self->{logfile} = $param{logfile};
 
@@ -72,6 +74,8 @@ sub check
     my $max_han = 0;
     my $han = 0;
     my @yaku;
+
+    $self->{errstr} = "";
 
     # TODO: エラーチェックに他に必要なものはないか？
     # ex.
@@ -119,11 +123,17 @@ sub check
     } else {
         # あがりが未定義ならエラー
 
-        return if ( !defined( $test->{agari} ) );
+        if ( !defined( $test->{agari} ) ) {
+            $self->{errstr} = "agari is not defined";
+            return;
+        }
 
         # あがり牌が手中に存在しなければエラー
 
-        return if ( $test->{te} !~ /$test->{agari}/ );
+        if ( $test->{te} !~ /$test->{agari}/ ) {
+            $self->{errstr} = "agari hai does not exist in te";
+            return;
+        }
     }
 
     $self->log_( 0, sprintf "手(%s) 泣き(%s) %s(%s) 風(%s,%s) ドラ(%s)",
@@ -137,7 +147,10 @@ sub check
 
     # 正しい文字だけで構成されているかどうかをチェック
 
-    return if ( $test->{te} !~ /^([mps][1-9]|z[1-7])+$/ );
+    if ( $test->{te} !~ /^([mps][1-9]|z[1-7])+$/ ) {
+        $self->{errstr} = "Invalid character exists in te";
+        return;
+    }
 
     # 牌の数を数える
 
@@ -147,7 +160,10 @@ sub check
     foreach my $p ( sort keys %pc ) {
         # 同じ牌が 5枚以上あればエラー
 
-        return if ( $pc{$p} > 4 );
+        if ( $pc{$p} > 4 ) {
+            $self->{errstr} = "Too many $p";
+            return;
+        }
     }
 
     $self->debug_print( \%pc );
@@ -188,6 +204,7 @@ sub check
 
         if ( $error ) {
             $self->log_( 0, "ERROR: naki" );
+            $self->{errstr} = "Invalid naki";
             return;
         }
 
@@ -206,11 +223,17 @@ sub check
     foreach my $p ( sort keys %pc ) {
         $hc += $pc{$p};
     }
-    return if ( $hc != 14 - 3 * $mc );
+    if ( $hc != 14 - 3 * $mc ) {
+        $self->{errstr} = ( $hc < 14 - 3 * $mc ? "Too few hais" : "Too many hais" );
+        return;
+    }
 
     # 残りの牌にあがり牌があるかどうか
 
-    return if ( !defined( $pc{$test->{agari}} ) || ( $pc{$test->{agari}} < 1 ) );
+    if ( !defined( $pc{$test->{agari}} ) || ( $pc{$test->{agari}} < 1 ) ) {
+        $self->{errstr} = "agari hai does not exist in te";
+        return;
+    }
 
     if ( $test->{menzen} ) {
         # chii-toitsu
@@ -277,7 +300,10 @@ sub check
         $self->log_( 1, sprintf "head %s", $head ) if ( $head ne '' );
         $self->log_( 1, sprintf "error %d", $error ) if ( $error );
 
-        return if ( $error ne 0 );
+        if ( $error ne 0 ) {
+            $self->{errstr} = "Go-ron (invalid jihai)";
+            return;
+        }
 
         $self->debug_print( \%pc );
 
@@ -533,10 +559,12 @@ sub check
 
             return \%result;
         } else {
+            $self->{errstr} = "No yaku";
             return undef;
         }
     } else {
         $self->log_( 0, "NO OK PATTERNS !!!" );
+        $self->{errstr} = "Go-ron";
         return undef;
     }
 }
@@ -1206,6 +1234,7 @@ sub calc_score
     my $self = shift;
     my ( $fu, $han, $oya, $tsumo ) = @_;
 
+    $self->{errstr} = "";
     my $base = st_fu( $fu ) * ( 2 ** ( 2 + $han ) );
 
     if ( $fu == 0 || $base >= 2000 ) {
@@ -1260,6 +1289,22 @@ sub st_score
     my $score = shift;
 
     return ( int( ( $score + 99 ) / 100 ) * 100 );
+}
+
+# --------------------------------------------------------------------------
+# エラーメッセージの取得
+#
+# <INPUT>
+#   none
+# <OUTPUT>
+#   直前に起きたエラーの内容
+# --------------------------------------------------------------------------
+
+sub errstr
+{
+    my $self = shift;
+
+    return $self->{errstr};
 }
 
 # --------------------------------------------------------------------------

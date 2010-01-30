@@ -77,6 +77,48 @@ my @tests = (
             'renpu_toitsu4' => 1,
         },
     },
+    { # RENPU_TOITSU (4 fu)
+        'te' => "m2m2m2m2m3m4p1p2p3z1z1s2s4 s3",
+        'jikaze' => '2',
+        'bakaze' => '2',
+        'dora' => 'm8',
+
+        'yaku' => [
+            "TSUMO",
+        ],
+        'fu' => 20 + 4 + 2 + 2, # 28
+        'han' => 1,
+
+        'score' => {
+            'oya' => 500,
+            'ko'  => 300,
+        },
+
+        'rule' => {
+            'renpu_toitsu4' => 1,
+        },
+    },
+    { # RENPU_TOITSU (4 fu)
+        'te' => "m2m2m2m2m3m4p1p2p3z5z5s2s4 s3",
+        'jikaze' => '2',
+        'bakaze' => '2',
+        'dora' => 'm8',
+
+        'yaku' => [
+            "TSUMO",
+        ],
+        'fu' => 20 + 2 + 4 + 2 + 2, # 30
+        'han' => 1,
+
+        'score' => {
+            'oya' => 500,
+            'ko'  => 300,
+        },
+
+        'rule' => {
+            'renpu_toitsu4' => 1,
+        },
+    },
 
     { #KUITAN nasi
         'te'     => "m3m4m5p3p4m7m7 s3s4s5- s8s8s8- p5",
@@ -168,6 +210,53 @@ my @tests = (
             'no_triple_yakuman' => 1,
         },
     },
+    { #DOUBLE-YAKUMAN nasi2
+        'te'     => "p2p2p2p3p4p4p4p7p7p7p5p5p5 p1",
+        'jikaze' => 4,
+        'bakaze' => 2,
+        'dora'   => 'm2',
+
+        'yaku'   => [
+            "CHIN-ITSU",
+            "3-ANKO",
+            "TSUMO",
+        ],
+        'fu'     => 20 + 4 + 4 + 4 + 2, # 34
+        'han'    => 9, # bai-man
+
+        'score'  => {
+            'oya' => 8000,
+            'ko'  => 4000,
+        },
+
+        'rule'   => {
+            'no_double_yakuman' => 1,
+            'no_triple_yakuman' => 1,
+        },
+    },
+    { #DOUBLE-YAKUMAN nasi3 四暗刻単騎待ちがダブル役満でも、ルール上ダブル役満なしなら、なし
+        'te'     => "p2p2p2p3p4p4p4p7p7p7p5p5p5 p3",
+        'jikaze' => 4,
+        'bakaze' => 2,
+        'dora'   => 'm2',
+
+        'yaku'   => [
+            "4-ANKO(TANKI)",
+        ],
+        'fu'     => 20 + 4 + 4 + 4 + 4 + 2 + 2, # 40
+        'han'    => 100, # yakuman
+
+        'score'  => {
+            'oya' => 16000,
+            'ko'  =>  8000,
+        },
+
+        'rule'   => {
+            'no_double_yakuman'     => 1,
+            'no_triple_yakuman'     => 1,
+            'no_4anko_tanki_double' => 0,
+        },
+    },
 
     { #TRIPLE-YAKUMAN ari
         'te'     => "z1z1z2z2z2z5z5z6z6z6z7z7z7 z5",
@@ -250,7 +339,7 @@ my @tests = (
             "4-ANKO(TANKI)",
         ],
         'fu'     => 20 + 4 + 4 + 4 + 16 + 10 + 2, # 60
-        'han'    => 100, # double-yakuman
+        'han'    => 100, # yakuman
 
         'score'  => {
             'ron' => 48000,
@@ -263,6 +352,146 @@ my @tests = (
         },
     },
 
+    { #DAI-SUU-SHII (double)
+        'te'     => "z1z1z1z3z3z3z4z4p2p2 z2z2z2- z4",
+        'jikaze' => 4,
+        'bakaze' => 1,
+        'dora'   => 's5',
+
+        'yaku'   => [
+            "DAI-SUU-SHII",
+        ],
+        'fu'     => 20 + 8 + 8 + 8 + 4 + 2, # 50
+        'han'    => 200, # double-yakuman
+
+        'score'  => {
+            'oya' => 32000,
+            'ko'  => 16000,
+        },
+
+        'rule'   => {
+            'no_daisuushii_double'  => 0,
+            'no_double_yakuman'     => 0,
+            'no_triple_yakuman'     => 1,
+        },
+    },
+    { #DAI-SUU-SHII (single)
+        'te'     => "z1z1z1z3z3z3z4z4p2p2 z2z2z2- z4",
+        'jikaze' => 4,
+        'bakaze' => 1,
+        'dora'   => 's5',
+
+        'yaku'   => [
+            "DAI-SUU-SHII",
+        ],
+        'fu'     => 20 + 8 + 8 + 8 + 4 + 2, # 50
+        'han'    => 100, # yakuman
+
+        'score'  => {
+            'oya' => 16000,
+            'ko'  =>  8000,
+        },
+
+        'rule'   => {
+            'no_daisuushii_double'  => 1,
+            'no_double_yakuman'     => 0,
+            'no_triple_yakuman'     => 1,
+        },
+    },
+
+    { #4-KANTSU (double)
+        'te'     => "p2 p3p3p3p3 p4p4p4p4- p5p5p5p5 p6p6p6p6- p2",
+        'jikaze' => 2,
+        'bakaze' => 2,
+        'dora'   => 's5 m2 p9 z2 p9',
+
+        'yaku'   => [
+            "4-KANTSU",
+        ],
+        'fu'     => 20 + 16 + 8 + 16 + 8 + 2 + 2, # 72
+        'han'    => 200, # double-yakuman
+
+        'score'  => {
+            'oya' => 32000,
+            'ko'  => 16000,
+        },
+
+        'rule'   => {
+            'no_4kantsu_double'     => 0,
+            'no_double_yakuman'     => 0,
+            'no_triple_yakuman'     => 1,
+        },
+    },
+    { #4-KANTSU (single)
+        'te'     => "p2 p3p3p3p3 p4p4p4p4- p5p5p5p5 p6p6p6p6- p2",
+        'jikaze' => 2,
+        'bakaze' => 2,
+        'dora'   => 's5 m2 p9 z2 p9',
+
+        'yaku'   => [
+            "4-KANTSU",
+        ],
+        'fu'     => 20 + 16 + 8 + 16 + 8 + 2 + 2, # 72
+        'han'    => 100, # yakuman
+
+        'score'  => {
+            'oya' => 16000,
+            'ko'  =>  8000,
+        },
+
+        'rule'   => {
+            'no_4kantsu_double'     => 1,
+            'no_double_yakuman'     => 0,
+            'no_triple_yakuman'     => 1,
+        },
+    },
+
+    { # CHUUREN-POTO(9men-chan) (double)
+        'te' => "m1m1m1m2m3m4m5m6m7m8m9m9m9 m5",
+        'jikaze' => '2',
+        'bakaze' => '1',
+        'dora'   => 'p2',
+
+        'yaku' => [
+            "CHUUREN-POTO(9men-chan)",
+        ],
+        'fu' => 20 + 8 + 8 + 2 + 2, # 40
+        'han' => 200,
+
+        'score' => {
+            'oya' => 32000,
+            'ko'  => 16000,
+        },
+
+        'rule'   => {
+            'no_chuurenpoto9_double' => 0,
+            'no_double_yakuman'      => 0,
+            'no_triple_yakuman'      => 1,
+        },
+    },
+    { # CHUUREN-POTO(9men-chan) (single)
+        'te' => "m1m1m1m2m3m4m5m6m7m8m9m9m9 m5",
+        'jikaze' => '2',
+        'bakaze' => '1',
+        'dora'   => 'p2',
+
+        'yaku' => [
+            "CHUUREN-POTO(9men-chan)",
+        ],
+        'fu' => 20 + 8 + 8 + 2 + 2, # 40
+        'han' => 100,
+
+        'score' => {
+            'oya' => 16000,
+            'ko'  =>  8000,
+        },
+
+        'rule'   => {
+            'no_chuurenpoto9_double' => 1,
+            'no_double_yakuman'      => 0,
+            'no_triple_yakuman'      => 1,
+        },
+    },
 );
 
 plan tests => @tests * 5;

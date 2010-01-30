@@ -22,7 +22,7 @@ ok( -z "g.log" );
 
 # 初期化
 
-$mjc = MG->new( 'debug' => 0, 'logfile' => $logfile );
+$mjc = MG->new( 'debug' => 1, 'logfile' => $logfile );
 
 # 初期化後にログ出力
 
