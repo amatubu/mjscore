@@ -48,7 +48,7 @@ sub new
     #   ->{no_daisuushii_double}  大四喜をダブル役満とするかどうか (デフォルトはする)
     #   ->{no_kokusi13_double} 国士無双13面待ちをダブル役満とするかどうか (デフォルトはする)
     #   ->{no_4kantsu_double}  四槓子をダブル役満とするかどうか (デフォルトはする)
-    #   ->{no_chuurenpoto9_double} 九連宝燈をダブル役満とするかどうか (デフォルトはする)
+    #   ->{no_chuurenpoto9_double} 九連宝燈9面待ちをダブル役満とするかどうか (デフォルトはする)
 
     $self->{rule} = $param{rule};
 
@@ -125,14 +125,14 @@ sub check
 
         if ( !defined( $test->{agari} ) ) {
             $self->{errstr} = "agari is not defined";
-            return;
+            return undef;
         }
 
         # あがり牌が手中に存在しなければエラー
 
         if ( $test->{te} !~ /$test->{agari}/ ) {
             $self->{errstr} = "agari hai does not exist in te";
-            return;
+            return undef;
         }
     }
 
@@ -145,11 +145,18 @@ sub check
         $ji_name{$test->{bakaze}},
         $test->{dora} || '' );
 
+    # あがり牌が正しい文字だけで構成されているかどうかをチェック
+
+    if ( $test->{agari} !~ /^([mps][1-9]|z[1-7])$/ ) {
+        $self->{errstr} = "Invalid agari hai ($test->{agari})";
+        return undef;
+    }
+
     # 正しい文字だけで構成されているかどうかをチェック
 
     if ( $test->{te} !~ /^([mps][1-9]|z[1-7])+$/ ) {
-        $self->{errstr} = "Invalid character exists in te";
-        return;
+        $self->{errstr} = "Invalid character exists in te ($test->{te})";
+        return undef;
     }
 
     # 牌の数を数える
@@ -162,7 +169,7 @@ sub check
 
         if ( $pc{$p} > 4 ) {
             $self->{errstr} = "Too many $p";
-            return;
+            return undef;
         }
     }
 
@@ -175,7 +182,7 @@ sub check
             # 泣きが面子の形になっているかどうか
 
             if ( !$self->check_naki( $nm ) ) {
-                $error = 1;
+                $error = $nm;
                 last;
             }
 
@@ -195,7 +202,7 @@ sub check
                     $pc{$p}--;
                     delete $pc{$p} if ( $pc{$p} == 0 );
                 } else {
-                    $error = 1;
+                    $error = $nm;
                     last;
                 }
             }
@@ -203,9 +210,9 @@ sub check
         }
 
         if ( $error ) {
-            $self->log_( 0, "ERROR: naki" );
-            $self->{errstr} = "Invalid naki";
-            return;
+            $self->log_( 0, "ERROR: naki ($error)" );
+            $self->{errstr} = "Invalid naki ($error)";
+            return undef;
         }
 
         $self->debug_print( \%pc );
@@ -225,14 +232,14 @@ sub check
     }
     if ( $hc != 14 - 3 * $mc ) {
         $self->{errstr} = ( $hc < 14 - 3 * $mc ? "Too few hais" : "Too many hais" );
-        return;
+        return undef;
     }
 
     # 残りの牌にあがり牌があるかどうか
 
     if ( !defined( $pc{$test->{agari}} ) || ( $pc{$test->{agari}} < 1 ) ) {
         $self->{errstr} = "agari hai does not exist in te";
-        return;
+        return undef;
     }
 
     if ( $test->{menzen} ) {
@@ -302,7 +309,7 @@ sub check
 
         if ( $error ne 0 ) {
             $self->{errstr} = "Go-ron (invalid jihai)";
-            return;
+            return undef;
         }
 
         $self->debug_print( \%pc );
@@ -660,7 +667,7 @@ sub check_naki
     my $self = shift;
     my $nm = shift;
 
-    return if ( !defined( $nm ) );
+    return 0 if ( !defined( $nm ) );
 
     # 正しい面子とは、刻子、カン子、順子のいずれか。
 
