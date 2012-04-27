@@ -153,7 +153,7 @@ my @tests = (
     { # 1-TSUU
         'te' => "s1s2s3s4s5s6s7s8s9s5s6s7s8s8",
         'agari' => 's2',
-        'naki' => 's7s8s9-',
+        'naki' => 's7-s9s8',
         'jikaze' => '2',
         'bakaze' => '1',
 
@@ -893,7 +893,7 @@ foreach my $test ( @tests ) {
             $msg = "NG";
             $pass = 0;
         }
-        $msg .= sprintf "  %d fu => %d fu  ", $result->{fu}, MG::st_fu( $result->{fu} );
+        $msg .= sprintf "  %d fu => %d fu  ", $result->{fu}, $result->{st_fu};
         if ( $result->{han} >= 200 ) {
             $msg .= "Double-Yakuman($result->{han})";
         } elsif ( $result->{han} >= 100 ) {
@@ -918,7 +918,7 @@ foreach my $test ( @tests ) {
         $mjc->log_( 0, $msg );
 
         my $score = $mjc->calc_score(
-            $result->{fu},
+            $result->{st_fu},
             $result->{han},
             ( $test->{jikaze} == 1 ), # oya
             $test->{tsumo} );
@@ -936,7 +936,7 @@ foreach my $test ( @tests ) {
         if ( !$pass ) {
             $mjc->log_( 0, "=== EXPECT ===" );
             $mjc->log_( 0, sprintf "    %d fu => %d fu  %d han",
-                $test->{fu}, MG::st_fu( $test->{fu} ), $test->{han} );
+                $test->{fu}, $test->{st_fu}, $test->{han} );
             $mjc->log_( 0, sprintf "    %s", $expect_yaku_list );
         }
     }

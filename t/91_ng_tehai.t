@@ -106,7 +106,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
-        'errstr' => "Invalid naki (-)",
+        'errstr' => "Invalid naki (m2m3m4-)",
     },
     { # 泣きに手牌に存在しない牌がある2
         'te'     => 'm1m1p1p1p1p7p8p9s7s8s9z4z4z4',
@@ -116,7 +116,7 @@ my @tests = (
         'bakaze' => 2,
 
         'error'  => 1,
-        'errstr' => "Invalid naki (-)",
+        'errstr' => "Invalid naki (m1m1m1-)",
     },
 
     { # 同じ牌が5枚以上ある

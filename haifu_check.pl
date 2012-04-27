@@ -363,7 +363,7 @@ sub agari_test {
         $mjc->log_( 0, sprintf "AGARI-KEI  %s", $result->{tehai} );
 
         if ( $result->{han} < 5 ) {
-            my $base_score = ( MG::st_fu( $result->{fu} ) * ( 2 ** ( 2 + $result->{han} ) ) );
+            my $base_score = ( $result->{st_fu} * ( 2 ** ( 2 + $result->{han} ) ) );
 
             if ( $base_score >= 2000 ) {
                 # 符ハネ
@@ -371,7 +371,7 @@ sub agari_test {
                 $result->{fu} = 0;
                 $result->{han} = 5;
             } else {
-                $result->{fu} = MG::st_fu( $result->{fu} );
+                $result->{fu} = $result->{st_fu};
             }
         } else {
             $result->{han} =  6 if ( $result->{han} == 7 );
@@ -392,7 +392,7 @@ sub agari_test {
             $msg = "NG";
             $pass = 0;
         }
-        $msg .= sprintf "  %d fu => %d fu  ", $result->{fu}, MG::st_fu( $result->{fu} );
+        $msg .= sprintf "  %d fu => %d fu  ", $result->{fu}, $result->{st_fu};
         if ( $result->{han} >= 300 ) {
             $msg .= "Triple-Yakuman($result->{han})";
         } elsif ( $result->{han} >= 200 ) {
@@ -438,7 +438,7 @@ sub agari_test {
         if ( !$pass ) {
             $mjc->log_( 0, "=== EXPECT ===" );
             $mjc->log_( 0, sprintf "    %d fu => %d fu  %d han",
-                $test->{fu}, MG::st_fu( $test->{fu} ), $test->{han} );
+                $test->{fu}, $test->{st_fu}, $test->{han} );
             $mjc->log_( 0, sprintf "    %s", $expect_yaku_list );
         } else {
             $ok_num ++;

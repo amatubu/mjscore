@@ -11,6 +11,16 @@ my @ok_tests = (
     "s8s8s8s8",
     "m1m1m1m1-",
     "p3p4p5",
+
+    # non-sorted naki
+
+    "p2p3p1",
+    "m2m4m3",
+    "s2-s1s3",
+    "s5s6-s7",
+
+    "z3z3-z3",
+    "p7-p7p7p7",
 );
 
 my @ng_tests = (
@@ -37,8 +47,6 @@ my @ng_tests = (
     's3s4',
     'z1z',
     'z6z6z',
-
-    "p2p3p1", # TODO
 );
 
 plan tests => @ok_tests + @ng_tests;

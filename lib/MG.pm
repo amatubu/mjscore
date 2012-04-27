@@ -6,6 +6,58 @@ use utf8;
 
 our $VERSION = '0.01';
 
+=head1 NAME
+
+MG - Mahjong calculator written in Perl
+
+=head1 VERSION
+
+Version 0.01
+
+=cut
+
+=head1 SYNOPSIS
+
+  use MG;
+  $m = new MG( logfile => $logfile,
+               debug   => $debug,
+               rule    => \%rule );
+
+  $test = (
+      te     => 'p1p2p3p3p4p5s3s4s5m3m4m5z4z4',
+      agari  => 'p3',
+      jikaze => 2,
+      bakaze => 1,
+      tsumo  => 0,
+      reach  => 1,
+      dora   => "m4 m5",
+  );
+
+  $result = $m->check( \%test );
+  if ( $result ) {
+      $score = $m->calc_score(
+          $result->{st_fu},
+          $result->{han},
+          ( $test{jikaze} == 1 ), # oya
+          $result->{tsumo} );
+
+      printf "yaku : %s\n", join( ' ', sort @{$result->{yaku}} );
+      printf "score : %d fu %d han\n", $result->{st_fu}, $result->{han};
+      printf "        ";
+      foreach my $p ( keys %{$score} ) {
+          printf "%d (%s) ", $score->{$p}, $p;
+      }
+
+  } else {
+      warn $m->errstr;
+  }
+
+=head1 DESCRIPTION
+
+The MG module ...
+
+=cut
+
 # --------------------------------------------------------------------------
 # 定数
 # --------------------------------------------------------------------------
@@ -22,9 +74,25 @@ my %ji_name = (
     '7' => "中",
 );
 
+# 牌
+
+my $suu_hai = "[mps][1-9]";
+my $ji_hai  = "z[1-7]";
+my $hai_str = "(?:$suu_hai|$ji_hai)";
+
 # --------------------------------------------------------------------------
 # 初期化ルーチン
 # --------------------------------------------------------------------------
+
+=over 2
+
+=item $m = new MG( logfile => $logfile, rule => \%rule );
+
+This creates a new MG object.
+
+=back
+
+=cut
 
 sub new
 {
@@ -59,6 +127,15 @@ sub new
 # --------------------------------------------------------------------------
 # チェックルーチン
 # --------------------------------------------------------------------------
+
+=over 2
+
+=item $m->check( \%test );
+
+
+=back
+
+=cut
 
 sub check
 {
@@ -115,9 +192,9 @@ sub check
             $test->{tsumo} = 1;
         }
 
-        $test->{te} = ( shift @tehai ) . $test->{agari};
-        $test->{naki} = join( ' ', map { s/^(([mpsz]\d){3})$/$1-/; $_ } @tehai );
-        $test->{te} .= $test->{naki};
+        $test->{te} = shift @tehai;
+        $test->{naki} = join( ' ', map { s/^(($hai_str){3})$/$1-/; $_ } @tehai );
+        $test->{te} .= $test->{naki} . $test->{agari};
         $test->{menzen} = ( $test->{naki} !~ /-/ );
         $test->{te} =~ s/[- ]//g;
     } else {
@@ -147,21 +224,21 @@ sub check
 
     # あがり牌が正しい文字だけで構成されているかどうかをチェック
 
-    if ( $test->{agari} !~ /^([mps][1-9]|z[1-7])$/ ) {
+    if ( $test->{agari} !~ /^$hai_str$/ ) {
         $self->{errstr} = "Invalid agari hai ($test->{agari})";
         return undef;
     }
 
     # 正しい文字だけで構成されているかどうかをチェック
 
-    if ( $test->{te} !~ /^([mps][1-9]|z[1-7])+$/ ) {
+    if ( $test->{te} !~ /^($hai_str)+$/ ) {
         $self->{errstr} = "Invalid character exists in te ($test->{te})";
         return undef;
     }
 
     # 牌の数を数える
 
-    while ( $test->{te} =~ /([mps][1-9]|z[1-7])/g ) {
+    while ( $test->{te} =~ /($hai_str)/g ) {
         $pc{$1}++;
     }
     foreach my $p ( sort keys %pc ) {
@@ -179,6 +256,10 @@ sub check
 
     if ( defined( $test->{naki} ) ) {
         foreach my $nm ( split( ' ', $test->{naki} ) ) {
+            # 泣きをソートする
+
+            $nm = sort_tehai( $nm );
+
             # 泣きが面子の形になっているかどうか
 
             if ( !$self->check_naki( $nm ) ) {
@@ -188,7 +269,7 @@ sub check
 
             # 暗カン以外で「-」が省略されている場合は、ここで加える
 
-            if ( ( $nm !~ /([mpsz]\d)\1{3}/ ) && ( $nm !~ /-/ ) ) {
+            if ( ( $nm !~ /($hai_str)\1{3}/ ) && ( $nm !~ /-/ ) ) {
                 $nm .= "-";
             }
 
@@ -196,7 +277,7 @@ sub check
             $mc++;
             $self->log_( 1, "NAKI: $nm" );
 
-            while ( $nm =~ s/([mpsz]\d)// ) {
+            while ( $nm =~ /($hai_str)/g ) {
                 my $p = $1;
                 if ( defined( $pc{$p} ) && $pc{$p} > 0 ) {
                     $pc{$p}--;
@@ -558,10 +639,11 @@ sub check
         my %result;
 
         if ( $han > 0 ) {
-            $result{fu} = $max_fu;
-            $result{han} = $han;
-            $result{dora} = $dora;
-            $result{yaku} = \@yaku;
+            $result{fu}    = $max_fu;
+            $result{st_fu} = st_fu( $max_fu );
+            $result{han}   = $han;
+            $result{dora}  = $dora;
+            $result{yaku}  = \@yaku;
             $result{tehai} = $max;
 
             return \%result;
@@ -669,14 +751,17 @@ sub check_naki
 
     return 0 if ( !defined( $nm ) );
 
+    # 牌がソートされていないかもしれないので、ソートしておく
+
+    $nm = sort_tehai( $nm );
+
     # 正しい面子とは、刻子、カン子、順子のいずれか。
 
     # 刻子またはカン子かどうか
 
-    return 1 if ( $nm =~ /^([mps][1-9]|z[1-7])\1{2,3}-?$/ );
+    return 1 if ( $nm =~ /^($hai_str)\1{2,3}-?$/ );
 
     # 順子かどうか
-    # TODO: 順番が入れ替わっているケースをどうする？
 
     if ( $nm =~ /^([mps])([1-9])\1([1-9])\1([1-9])-?$/ ) {
         return 1 if ( $3 == $2 + 1 && $4 == $3 + 1 );
@@ -730,7 +815,7 @@ sub calc_fu
             next;
         }
 
-        if ( $m =~ /^([mpsz]\d)\1\1(\1)?(-)?$/ ) {
+        if ( $m =~ /^($hai_str)\1\1(\1)?(-)?$/ ) {
             # 刻子または槓子
 
             my $p = $1;
@@ -950,10 +1035,10 @@ sub check_yaku
     # 四暗刻
 
     if ( $param->{menzen} && 
-         ( $param->{tehai} =~ /([mpsz]\d)\1{2,3} \s
-                               ([mpsz]\d)\2{2,3} \s
-                               ([mpsz]\d)\3{2,3} \s
-                               ([mpsz]\d)\4{2,3}$/x ) ) {
+         ( $param->{tehai} =~ /($hai_str)\1{2,3} \s
+                               ($hai_str)\2{2,3} \s
+                               ($hai_str)\3{2,3} \s
+                               ($hai_str)\4{2,3}$/x ) ) {
         if ( $param->{tehai} =~ /^($param->{agari}){2}\s/ ) {
             push @yaku, "4-ANKO(TANKI)";
             if ( !$self->{rule}->{no_4anko_tanki_double} ) {
@@ -969,10 +1054,10 @@ sub check_yaku
 
     # 4-KANTSU
 
-    if ( $param->{tehai} =~ /([mpsz]\d)\1{3}-? \s
-                             ([mpsz]\d)\2{3}-? \s
-                             ([mpsz]\d)\3{3}-? \s
-                             ([mpsz]\d)\4{3}-?$/x ) {
+    if ( $param->{tehai} =~ /($hai_str)\1{3}-? \s
+                             ($hai_str)\2{3}-? \s
+                             ($hai_str)\3{3}-? \s
+                             ($hai_str)\4{3}-?$/x ) {
         push @yaku, "4-KANTSU";
         if ( !$self->{rule}->{no_4kantsu_double} ) {
             $han += 200;
@@ -1061,7 +1146,7 @@ sub check_yaku
     # RINSHAN-KAIHO
 
     if ( $param->{rinshan} && $param->{tsumo} ) {
-        if ( $param->{tehai} =~ /([mpsz]\d)\1{3}-?/ ) {
+        if ( $param->{tehai} =~ /($hai_str)\1{3}-?/ ) {
             push @yaku, "RINSHAN-KAIHO";
             $han += 1;
         }
@@ -1160,19 +1245,19 @@ sub check_yaku
 
     # TOI-TOI-HOU
 
-    if ( $param->{tehai} =~ /([mpsz]\d)\1{2,3}-? \s
-                             ([mpsz]\d)\2{2,3}-? \s
-                             ([mpsz]\d)\3{2,3}-? \s
-                             ([mpsz]\d)\4{2,3}-?/x ) {
+    if ( $param->{tehai} =~ /($hai_str)\1{2,3}-? \s
+                             ($hai_str)\2{2,3}-? \s
+                             ($hai_str)\3{2,3}-? \s
+                             ($hai_str)\4{2,3}-?/x ) {
         push @yaku, "TOI-TOI-HOU";
         $han += 2;
     }
 
     # 3-ANKO
 
-    if ( $param->{tehai} =~ /([mpsz]\d)\1{2,3} \s([\w-]+\s)?
-                             ([mpsz]\d)\3{2,3} \s([\w-]+\s)?
-                             ([mpsz]\d)\5{2,3} (\s|$)/x ) {
+    if ( $param->{tehai} =~ /($hai_str)\1{2,3} \s([\w-]+\s)?
+                             ($hai_str)\3{2,3} \s([\w-]+\s)?
+                             ($hai_str)\5{2,3} (\s|$)/x ) {
         push @yaku, "3-ANKO";
         $han += 2;
     }
@@ -1195,9 +1280,9 @@ sub check_yaku
 
     # 3-KANTSU
 
-    if ( $param->{tehai} =~ /([mpsz]\d)\1{3}-? \s([\w-]+\s)?
-                             ([mpsz]\d)\3{3}-? \s([\w-]+\s)?
-                             ([mpsz]\d)\5{3}-?/x ) {
+    if ( $param->{tehai} =~ /($hai_str)\1{3}-? \s([\w-]+\s)?
+                             ($hai_str)\3{3}-? \s([\w-]+\s)?
+                             ($hai_str)\5{3}-?/x ) {
         push @yaku, "3-KANTSU";
         $han += 2;
     }
@@ -1299,6 +1384,22 @@ sub st_score
 }
 
 # --------------------------------------------------------------------------
+# 手牌のソート
+#
+# <INPUT>
+#   手牌
+# <OUTPUT>
+#   ソートした結果
+# --------------------------------------------------------------------------
+
+sub sort_tehai
+{
+    my $tehai = shift;
+
+    return join( '', sort ( $tehai =~ /$hai_str/g ) ) . ( $tehai =~ /-/ ? '-' : '' );
+}
+
+# --------------------------------------------------------------------------
 # エラーメッセージの取得
 #
 # <INPUT>
@@ -1362,14 +1463,4 @@ sub log_
 1;
 
 __END__
-
-=head1 NAME
-
-MG - Marjang calculator written in Perl
-
-=head1 VERSION
-
-Version 0.01
-
-=cut
 
